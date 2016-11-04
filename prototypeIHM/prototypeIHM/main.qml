@@ -70,7 +70,7 @@ ApplicationWindow {
 
                     MenuItem {
                         text: qsTr("Exit")
-                        onTriggered: tamere.restart();
+                        onTriggered: appHelpers.restartApp();
                         //onTriggered: Qt.quit();
                     }
                 }
@@ -193,8 +193,9 @@ ApplicationWindow {
                     id: okButton
                     text: qsTr("Ok")
                     onClicked: {
-                        settings.style = styleBox.displayText
-                        settingsPopup.close()
+                        settings.style = styleBox.displayText;
+                        appHelpers.syncSettings();
+                        settingsPopup.close();
                     }
 
                     Material.foreground: Material.primary

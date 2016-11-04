@@ -12,7 +12,10 @@ public:
     explicit Helpers(QObject *parent = 0);
 
     Q_INVOKABLE
-    void restart();
+    void restartApp();
+
+    Q_INVOKABLE
+    void syncSettings();
 
 signals:
 

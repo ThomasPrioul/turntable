@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = protoIHM_PFE
-QT += quick quickcontrols2 # qml
+QT += core quick quickcontrols2 # qml
 
 CONFIG += c++11
 

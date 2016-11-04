@@ -8,26 +8,49 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication::setApplicationName("Gallery");
-    QGuiApplication::setOrganizationName("QtProject");
+    QGuiApplication::setApplicationName("Proto IHM");
+    QGuiApplication::setOrganizationName("Thomas Prioul");
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     int currentExitCode = 0;
-    Helpers helpers;
+    int styleCounter = 0;
 
     do {
         QGuiApplication app(argc, argv);
 
-        QSettings settings;
-        QString style = QQuickStyle::name();
+        switch (styleCounter) {
+        case 0:
+            QQuickStyle::setStyle(QString("Default"));
+            break;
 
-        if (!style.isEmpty())
-            settings.setValue("style", style);
-        else
-            QQuickStyle::setStyle(settings.value("style").toString());
+        case 1:
+            QQuickStyle::setStyle(QString("Material"));
+            break;
 
+        case 2:
+            QQuickStyle::setStyle(QString("Universal"));
+            break;
+
+        default:
+            styleCounter = -1;
+            break;
+        }
+
+        styleCounter++;
+
+//        QSettings settings("settings.ini", QSettings::IniFormat);
+//        QString style = QQuickStyle::name();
+
+//        if (!style.isEmpty()) {
+//            settings.setValue("style", style);
+//        }
+//        else {
+//            QString style = settings.value("style").toString();
+//            QQuickStyle::setStyle(style);
+//        }
         QQmlApplicationEngine engine;
-        engine.rootContext()->setContextProperty("tamere", &helpers);
+        Helpers helpers;
+        engine.rootContext()->setContextProperty("appHelpers", &helpers);
         engine.load(QUrl(QLatin1String("qrc:/main.qml")));
 
         // Failure to load main.qml
