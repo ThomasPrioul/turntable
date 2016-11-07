@@ -15,7 +15,7 @@ ApplicationWindow {
 
     Settings {
         id: settings
-        property string style: "Universal"
+        property string style: "Material"
     }
 
     header: ToolBar {
@@ -25,24 +25,43 @@ ApplicationWindow {
             spacing: 20
             anchors.fill: parent
 
-            ToolButton {
-                contentItem: Image {
-                    fillMode: Image.Pad
-                    horizontalAlignment: Image.AlignHCenter
-                    verticalAlignment: Image.AlignVCenter
-                    source: "qrc:/images/drawer.png"
-                }
-                onClicked: drawer.open()
-            }
+//            ToolButton {
+//                contentItem: Image {
+//                    fillMode: Image.Pad
+//                    horizontalAlignment: Image.AlignHCenter
+//                    verticalAlignment: Image.AlignVCenter
+//                    source: "qrc:/images/drawer.png"
+//                }
+//                onClicked: drawer.open()
+//            }
 
-            Label {
-                id: titleLabel
-                text: qsTr("Proto PFE")
-                font.pixelSize: 20
-                elide: Label.ElideRight
-                horizontalAlignment: Qt.AlignHCenter
-                verticalAlignment: Qt.AlignVCenter
-                Layout.fillWidth: true
+//            Label {
+//                id: titleLabel
+//                text: qsTr("Proto PFE")
+//                font.pixelSize: 20
+//                elide: Label.ElideRight
+//                horizontalAlignment: Qt.AlignHCenter
+//                verticalAlignment: Qt.AlignVCenter
+//                Layout.fillWidth: true
+//            }
+
+            TabBar {
+                    id: tabBar
+                    //currentIndex: swipeView.currentIndex
+                    Layout.fillWidth: true
+                    background: Rectangle {
+                        color: Material.primary
+                    }
+
+                    TabButton {
+                        text: "First"
+                    }
+                    TabButton {
+                        text: "Second"
+                    }
+                    TabButton {
+                        text: "Third"
+                    }
             }
 
             ToolButton {
@@ -52,6 +71,7 @@ ApplicationWindow {
                     verticalAlignment: Image.AlignVCenter
                     source: "qrc:/images/menu.png"
                 }
+
                 onClicked: optionsMenu.open()
 
                 Menu {
@@ -70,8 +90,7 @@ ApplicationWindow {
 
                     MenuItem {
                         text: qsTr("Exit")
-                        onTriggered: appHelpers.restartApp();
-                        //onTriggered: Qt.quit();
+                        onTriggered: Qt.quit();
                     }
                 }
             }
@@ -138,6 +157,8 @@ ApplicationWindow {
         }
     }
 
+
+
     Popup {
         id: settingsPopup
         x: (window.width - width) / 2
@@ -198,9 +219,9 @@ ApplicationWindow {
                         settingsPopup.close();
                     }
 
-                    Material.foreground: Material.primary
-                    Material.background: "transparent"
-                    Material.elevation: 0
+                    //Material.foreground: Material.primary
+                    //Material.background: "transparent"
+                    //Material.elevation: 0
 
                     Layout.preferredWidth: 0
                     Layout.fillWidth: true
@@ -214,8 +235,8 @@ ApplicationWindow {
                         settingsPopup.close()
                     }
 
-                    Material.background: "transparent"
-                    Material.elevation: 0
+                    //Material.background: "transparent"
+                    //Material.elevation: 0
 
                     Layout.preferredWidth: 0
                     Layout.fillWidth: true
