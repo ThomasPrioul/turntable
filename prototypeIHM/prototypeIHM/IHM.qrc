@@ -1,23 +1,28 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>images/drawer.png</file>
-        <file>images/drawer@2x.png</file>
-        <file>images/drawer@3x.png</file>
-        <file>images/drawer@4x.png</file>
-        <file>pages/BusyIndicatorPage.qml</file>
-        <file>images/menu.png</file>
-        <file>images/menu@2x.png</file>
-        <file>images/menu@3x.png</file>
-        <file>images/menu@4x.png</file>
+        <file>img/drawer.png</file>
+        <file>img/drawer@2x.png</file>
+        <file>img/drawer@3x.png</file>
+        <file>img/drawer@4x.png</file>
+        <file>img/menu.png</file>
+        <file>img/menu@2x.png</file>
+        <file>img/menu@3x.png</file>
+        <file>img/menu@4x.png</file>
         <file>qtquickcontrols2.conf</file>
-        <file>images/+material/drawer.png</file>
-        <file>images/+material/drawer@2x.png</file>
-        <file>images/+material/drawer@3x.png</file>
-        <file>images/+material/drawer@4x.png</file>
-        <file>images/+material/menu.png</file>
-        <file>images/+material/menu@2x.png</file>
-        <file>images/+material/menu@3x.png</file>
-        <file>images/+material/menu@4x.png</file>
+        <file>img/+material/drawer.png</file>
+        <file>img/+material/drawer@2x.png</file>
+        <file>img/+material/drawer@3x.png</file>
+        <file>img/+material/drawer@4x.png</file>
+        <file>img/+material/menu.png</file>
+        <file>img/+material/menu@2x.png</file>
+        <file>img/+material/menu@3x.png</file>
+        <file>img/+material/menu@4x.png</file>
+        <file>views/AboutDialog.qml</file>
+        <file>views/TurnTablePage.qml</file>
+        <file>views/TrainDepotPage.qml</file>
+        <file>views/TrainControlPage.qml</file>
+        <file>views/ScriptPage.qml</file>
+        <file>views/ConnectDialog.qml</file>
     </qresource>
 </RCC>

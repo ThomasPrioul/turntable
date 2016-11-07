@@ -5,18 +5,19 @@ import QtQuick.Controls 2.0
 import QtQuick.Controls.Material 2.0
 import QtQuick.Controls.Universal 2.0
 import Qt.labs.settings 1.0
+import "views"
 
 ApplicationWindow {
     id: window
     visible: true
     width: 800
     height: 480
-    title: qsTr("Proto PFE")
+    title: qsTr("PFE HMI prototype", "windowTitle")
 
-    Settings {
-        id: settings
-        property string style: "Material"
-    }
+//    Settings {
+//        id: settings
+//        property string style: "Material"
+//    }
 
     header: ToolBar {
         Material.foreground: "white"
@@ -30,7 +31,7 @@ ApplicationWindow {
 //                    fillMode: Image.Pad
 //                    horizontalAlignment: Image.AlignHCenter
 //                    verticalAlignment: Image.AlignVCenter
-//                    source: "qrc:/images/drawer.png"
+//                    source: "qrc:/img/drawer.png"
 //                }
 //                onClicked: drawer.open()
 //            }
@@ -46,22 +47,27 @@ ApplicationWindow {
 //            }
 
             TabBar {
-                    id: tabBar
-                    //currentIndex: swipeView.currentIndex
-                    Layout.fillWidth: true
-                    background: Rectangle {
-                        color: Material.primary
-                    }
+                id: tabBar
+                Layout.fillWidth: true
+                currentIndex: centerPane.currentIndex
+                background: Rectangle {
+                    color: Material.primary
+                }
 
+                Material.foreground: "#FFE0E0E0"
+                Material.accent: "white"
+
+                Repeater {
+                    model: ListModel {
+                       ListElement { title: qsTr("Turn table", "pagename") }
+                       ListElement { title: qsTr("Train control", "pagename") }
+                       ListElement { title: qsTr("Depot", "pagename") }
+                       ListElement { title: qsTr("Scripts", "pagename") }
+                   }
                     TabButton {
-                        text: "First"
+                        text: model.title
                     }
-                    TabButton {
-                        text: "Second"
-                    }
-                    TabButton {
-                        text: "Third"
-                    }
+                }
             }
 
             ToolButton {
@@ -69,7 +75,7 @@ ApplicationWindow {
                     fillMode: Image.Pad
                     horizontalAlignment: Image.AlignHCenter
                     verticalAlignment: Image.AlignVCenter
-                    source: "qrc:/images/menu.png"
+                    source: "qrc:/img/menu.png"
                 }
 
                 onClicked: optionsMenu.open()
@@ -81,7 +87,8 @@ ApplicationWindow {
 
                     MenuItem {
                         text: qsTr("Settings")
-                        onTriggered: settingsPopup.open()
+                        enabled: false
+                        //onTriggered: settingsPopup.open()
                     }
 
                     MenuItem { text: qsTr("About")
@@ -97,185 +104,180 @@ ApplicationWindow {
         }
     }
 
-    StackView {
-        id: stackView
+    SwipeView {
+        id: centerPane
         anchors.fill: parent
+        currentIndex: tabBar.currentIndex
 
-        initialItem: Pane {
-            id: pane
 
-            Item {
-                anchors.fill: parent
-                RowLayout {
-                    anchors.centerIn: parent
+        TurnTablePage {
+            id: turnTablePage
+        }
 
-                    Button {
-                        id: button1
-                        text: qsTr("Settings")
-                        onClicked: settingsPopup.open()
-                    }
+        TrainControlPage {
+            id: trainControlPage
+        }
 
-                    Button {
-                        id: button2
-                        text: qsTr("Open drawer")
-                        onClicked: drawer.open()
-                    }
-                }
-            }
+        TrainDepotPage {
+            id: trainDepotPage
+        }
+
+        ScriptPage {
+            id: scriptPage
         }
     }
 
-    Drawer {
-        id: drawer
-        width: Math.min(window.width, window.height) / 3 * 2
-        height: window.height
+//    StackView {
+//        id: stackView
+//        anchors.fill: parent
 
-        ListView {
-            id: listView
-            currentIndex: -1
-            anchors.fill: parent
+//        initialItem: Pane {
+//            id: pane
 
-            delegate: ItemDelegate {
-                width: parent.width
-                text: model.title
-                highlighted: ListView.isCurrentItem
-                onClicked: {
-                    if (listView.currentIndex != index) {
-                        listView.currentIndex = index
-                        titleLabel.text = model.title
-                        stackView.replace(model.source)
-                    }
-                    drawer.close()
-                }
-            }
+//            Item {
+//                anchors.fill: parent
+//                RowLayout {
+//                    anchors.centerIn: parent
 
-            model: ListModel {
-                ListElement { title: "BusyIndicator"; source: "qrc:/pages/BusyIndicatorPage.qml" }
-            }
+//                    Button {
+//                        id: button1
+//                        text: qsTr("Settings")
+//                        enabled: false
+//                        //onClicked: settingsPopup.open()
+//                    }
 
-            ScrollIndicator.vertical: ScrollIndicator { }
-        }
-    }
+//                    Button {
+//                        id: button2
+//                        text: qsTr("Open drawer")
+//                        onClicked: drawer.open()
+//                    }
+//                }
+//            }
+//        }
+//    }
 
+//    Drawer {
+//        id: drawer
+//        width: Math.min(window.width, window.height) / 3 * 2
+//        height: window.height
 
+//        ListView {
+//            id: listView
+//            currentIndex: -1
+//            anchors.fill: parent
 
-    Popup {
-        id: settingsPopup
-        x: (window.width - width) / 2
-        y: window.height / 6
-        width: Math.min(window.width, window.height) / 3 * 2
-        height: settingsColumn.implicitHeight + topPadding + bottomPadding
-        modal: true
-        focus: true
+//            delegate: ItemDelegate {
+//                width: parent.width
+//                text: model.title
+//                highlighted: ListView.isCurrentItem
+//                onClicked: {
+//                    if (listView.currentIndex != index) {
+//                        listView.currentIndex = index
+//                        //titleLabel.text = model.title
+//                        stackView.replace(model.source)
+//                    }
+//                    drawer.close()
+//                }
+//            }
 
-        contentItem: ColumnLayout {
-            id: settingsColumn
-            spacing: 20
+//            model: ListModel {
+//                ListElement { title: "BusyIndicator"; source: "qrc:/views/BusyIndicatorPage.qml" }
+//            }
 
-            Label {
-                text: qsTr("Settings")
-                font.bold: true
-            }
+//            ScrollIndicator.vertical: ScrollIndicator { }
+//        }
+//    }
 
-            RowLayout {
-                spacing: 10
+//    Popup {
+//        id: settingsPopup
+//        x: (window.width - width) / 2
+//        y: window.height / 6
+//        width: Math.min(window.width, window.height) / 3 * 2
+//        height: settingsColumn.implicitHeight + topPadding + bottomPadding
+//        modal: true
+//        focus: true
 
-                Label {
-                    text: qsTr("Style:")
-                }
+//        contentItem: ColumnLayout {
+//            id: settingsColumn
+//            spacing: 20
 
-                ComboBox {
-                    id: styleBox
-                    property int styleIndex: -1
-                    model: ["Default", "Material", "Universal"]
-                    Component.onCompleted: {
-                        styleIndex = find(settings.style, Qt.MatchFixedString)
-                        if (styleIndex !== -1)
-                            currentIndex = styleIndex
-                    }
-                    Layout.fillWidth: true
-                }
-            }
+//            Label {
+//                text: qsTr("Settings")
+//                font.bold: true
+//            }
 
-            Label {
-                text: qsTr("Restart required")
-                color: "#e41e25"
-                opacity: styleBox.currentIndex !== styleBox.styleIndex ? 1.0 : 0.0
-                horizontalAlignment: Label.AlignHCenter
-                verticalAlignment: Label.AlignVCenter
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-            }
+//            RowLayout {
+//                spacing: 10
 
-            RowLayout {
-                spacing: 10
+//                Label {
+//                    text: qsTr("Style:")
+//                }
 
-                Button {
-                    id: okButton
-                    text: qsTr("Ok")
-                    onClicked: {
-                        settings.style = styleBox.displayText;
-                        appHelpers.syncSettings();
-                        settingsPopup.close();
-                    }
+//                ComboBox {
+//                    id: styleBox
+//                    property int styleIndex: -1
+//                    model: ["Default", "Material", "Universal"]
+//                    Component.onCompleted: {
+//                        styleIndex = find(settings.style, Qt.MatchFixedString)
+//                        if (styleIndex !== -1)
+//                            currentIndex = styleIndex
+//                    }
+//                    Layout.fillWidth: true
+//                }
+//            }
 
-                    //Material.foreground: Material.primary
-                    //Material.background: "transparent"
-                    //Material.elevation: 0
+//            Label {
+//                text: qsTr("Restart required")
+//                color: "#e41e25"
+//                opacity: styleBox.currentIndex !== styleBox.styleIndex ? 1.0 : 0.0
+//                horizontalAlignment: Label.AlignHCenter
+//                verticalAlignment: Label.AlignVCenter
+//                Layout.fillWidth: true
+//                Layout.fillHeight: true
+//            }
 
-                    Layout.preferredWidth: 0
-                    Layout.fillWidth: true
-                }
+//            RowLayout {
+//                spacing: 10
 
-                Button {
-                    id: cancelButton
-                    text: qsTr("Cancel")
-                    onClicked: {
-                        styleBox.currentIndex = styleBox.styleIndex
-                        settingsPopup.close()
-                    }
+//                Button {
+//                    id: okButton
+//                    text: qsTr("Ok")
+//                    onClicked: {
+//                        settings.style = styleBox.displayText;
+//                        appHelpers.syncSettings();
+//                        settingsPopup.close();
+//                    }
 
-                    //Material.background: "transparent"
-                    //Material.elevation: 0
+//                    //Material.foreground: Material.primary
+//                    //Material.background: "transparent"
+//                    //Material.elevation: 0
 
-                    Layout.preferredWidth: 0
-                    Layout.fillWidth: true
-                }
-            }
-        }
-    }
+//                    Layout.preferredWidth: 0
+//                    Layout.fillWidth: true
+//                }
 
-    Popup {
+//                Button {
+//                    id: cancelButton
+//                    text: qsTr("Cancel")
+//                    onClicked: {
+//                        styleBox.currentIndex = styleBox.styleIndex
+//                        settingsPopup.close()
+//                    }
+
+//                    //Material.background: "transparent"
+//                    //Material.elevation: 0
+
+//                    Layout.preferredWidth: 0
+//                    Layout.fillWidth: true
+//                }
+//            }
+//        }
+//    }
+
+    AboutDialog {
         id: aboutDialog
-        modal: true
-        focus: true
         x: (window.width - width) / 2
         y: window.height / 6
         width: Math.min(window.width, window.height) / 3 * 2
-        contentHeight: aboutColumn.height
-
-        Column {
-            id: aboutColumn
-            spacing: 20
-
-            Label {
-                text: qsTr("About")
-                font.bold: true
-            }
-
-            Label {
-                width: aboutDialog.availableWidth
-                text: "PFE - pont tournant pour modélisme ferroviaire\nMade with Qt Quick Controls 2."
-                wrapMode: Label.Wrap
-                font.pixelSize: 12
-            }
-
-            Label {
-                width: aboutDialog.availableWidth
-                text: "Thomas Prioul\nPolytech' Tours DII - 2016/2017"
-                font.bold: true
-                font.pixelSize: 12
-            }
-        }
     }
 }
