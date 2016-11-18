@@ -18,11 +18,12 @@
         <file>img/+material/menu@2x.png</file>
         <file>img/+material/menu@3x.png</file>
         <file>img/+material/menu@4x.png</file>
-        <file>views/AboutDialog.qml</file>
-        <file>views/TurnTablePage.qml</file>
-        <file>views/TrainDepotPage.qml</file>
-        <file>views/TrainControlPage.qml</file>
-        <file>views/ScriptPage.qml</file>
-        <file>views/ConnectDialog.qml</file>
+        <file>views/dialogs/AboutDialog.qml</file>
+        <file>views/dialogs/ConnectDialog.qml</file>
+        <file>views/pages/ScriptPage.qml</file>
+        <file>views/pages/TrainControlPage.qml</file>
+        <file>views/pages/TrainDepotPage.qml</file>
+        <file>views/pages/TurnTable.qml</file>
+        <file>views/pages/TurnTableForm.ui.qml</file>
     </qresource>
 </RCC>

@@ -15,17 +15,6 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQuickStyle::setStyle(QString("Material"));
 
-//        QSettings settings("settings.ini", QSettings::IniFormat);
-//        QString style = QQuickStyle::name();
-
-//        if (!style.isEmpty()) {
-//            settings.setValue("style", style);
-//        }
-//        else {
-//            QString style = settings.value("style").toString();
-//            QQuickStyle::setStyle(style);
-//        }
-
     QQmlApplicationEngine engine;
     Helpers helpers;
 
