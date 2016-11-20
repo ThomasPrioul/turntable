@@ -1,11 +1,12 @@
 TEMPLATE = app
 TARGET = protoIHM_PFE
-QT += core quick quickcontrols2 # qml
+QT += core network quick quickcontrols2 # qml
 
 CONFIG += c++11
 
 SOURCES += main.cpp \
-    helpers.cpp
+    helpers.cpp \
+    clientnetworking.cpp
 
 RESOURCES += \
     IHM.qrc
@@ -25,6 +26,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    helpers.h
+    helpers.h \
+    clientnetworking.h
 
 DISTFILES +=
