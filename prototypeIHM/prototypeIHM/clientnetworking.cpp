@@ -7,7 +7,7 @@ ClientNetworking::ClientNetworking(QObject *parent)
     , networkSession(Q_NULLPTR)
 {
     // Register handler for tcpSocket 'dataReceived' event
-    connect(tcpSocket, &QIODevice::readyRead, this, &ClientNetworking::receiveMessageHandler);
+    QObject::connect(tcpSocket, &QIODevice::readyRead, this, &ClientNetworking::receiveMessageHandler);
     typedef void (QAbstractSocket::*QAbstractSocketErrorSignal)(QAbstractSocket::SocketError);
 
     // Register handler for error
