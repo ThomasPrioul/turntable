@@ -1,18 +1,22 @@
+Doc class     : [10pt]article
 Title         : Cahier d'analyse
 Author        : Thomas Prioul
 Affiliation   : Polytech' Tours
 Email         : thomas.prioul@etu.univ-tours.fr
+Locale        : fr-FR
 
-Colorizer     : javascript
+Colorizer     : cpp
+Logo          : True
+name-contents : Table des matières
 <!--
 Bib style     : plainnat
 Bibliography  : example
 -->
-Logo          : True
-
-Doc class     : [10pt]article
-
 [TITLE]
+
+
+
+[TOC]
 
 # Madoko 
 
