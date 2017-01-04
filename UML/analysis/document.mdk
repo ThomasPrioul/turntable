@@ -1,5 +1,6 @@
 Doc class     : [10pt]article
-Title         : Cahier d'analyse
+Title         : Pont tournant pour le modélisme ferroviaire
+Sub Title     : Cahier d'analyse
 Author        : Thomas Prioul
 Affiliation   : Polytech' Tours
 Email         : thomas.prioul@etu.univ-tours.fr
@@ -12,21 +13,55 @@ name-contents : Table des matières
 Bib style     : plainnat
 Bibliography  : example
 -->
+
 [TITLE]
-
-
-
 [TOC]
 
-# Madoko 
+# Introduction 
 
-Madoko is a fast markdown processor for writing professional articles
-with a focus on simplicity and plain text readability.
+Ce document contient la démarche d'analyse pour le projet "Pont tournant pour le modélisme ferroviaire".
+On y retrouve les diagrammes UML permettant de représenter le système et ses différents composants logiciels, qui sont le coeur de la réalisation de ce projet.
 
-* Read the [reference manual].
-* Explore the upper-right toolbox menu to discover how Markdown works. 
-* `Alt-Q` reformats the current paragraph.
+On rappellera d'abord le contexte du projet, avant de présenter les analyses qui ont été faites.
 
-Enjoy!
+# Tâches à réaliser
 
-[reference manual]: http://research.microsoft.com/en-us/um/people/daan/madoko/doc/reference.html  "Madoko reference manual"
+Il s'agit de réaliser un pont tournant pour le modélisme ferroviaire, commandé par une RaspberryPi 2 dotée d'un écran tactile. Ce pont s'intègre dans un système existant composé d'une partie "manuelle" où les trains et les aiguillages sont commandés directement par l'utilisateur, et d'une partie automatisée où des scripts décrivent les itinéraires des trains (les aiguillages et signalisations sont changés en conséquence). *Ce système est géré par un serveur central sur lequel plusieurs clients peuvent venir se connecter.*
+
+Le pont tourne à l'aide d'un moteur pas à pas, commandé par une carte "driver", elle-même connectée à la RaspberryPi via des GPIO.
+
+La RPi devra présenter une interface homme-machine afin de contrôler sur place la rotation du pont. De plus, elle devra reprendre certains éléments d'un client existant permettant de contrôler le reste du réseau de modélisme (comme un dépôt faisant l'interface entre partie manuelle et automatisée du circuit).
+
+Enfin, la plaque tournante devra pouvoir être contrôlée à distance (c'est-à-dire depuis un autre client du système), ce qui implique une modification du serveur existant pour relayer les messages à la RaspberryPi.
+
+Le projet est réalisé pour M. Cédric Charles, qui possède la maquette de modélisme ferroviaire.
+Le but est avant tout d'avoir une plaque tournante commandée en local, ainsi que la commande d'autres éléments du circuit depuis l'écran tactile.
+En option, le programme pourrait devenir une base pour remplacer le client PC vieillissant, ainsi que pour un client smartphone.
+Il se doit donc d'être léger et multi-plateforme.
+
+En résumé, le projet implique :
+
+* électronique,
+* mécanique,
+* et informatique embarquée
+
+C'est la partie informatique embarquée qui est analysée dans ce document, la partie mécanique et électronique étant déjà conçue et en cours de fabrication par M. Charles.
+
+# Architecture
+## Diagramme de classes
+
+~ Figure { #fig-classdiagram; caption: "Diagramme de classes" }
+The ![classdiagram] image.
+~
+
+
+
+## Machine d'état de l'application
+
+# Choix technologiques
+
+## OS et librairies logicielles
+
+L'OS utilisé sur la RaspberryPi est une distribution Linux Raspbian Jessie.
+
+[classdiagram]: classdiagram.png { width:100px; vertical-align:middle }
