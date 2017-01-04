@@ -37,9 +37,4 @@ Makefile*
 CMakeLists.txt.user
 
 # Visual Paradigm
-.vpprefdata/
-*.vpp~*
-*.vpp.working
-*.vpp.working-journal
-*.lock
-tmp/*
+**.vpp~*
