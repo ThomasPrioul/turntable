@@ -48,23 +48,6 @@ bool CircularBuffer::putChar(char c)
     return false;
 }
 
-//QByteArray CircularBuffer::readAll()
-//{
-//    QByteArray dataRead(bytesToRead, 0);
-//    int insertPos = 0;
-
-//    if (bytesToRead > (bufferSize - readPos)) {
-//        dataRead = dataRead.replace(0, bufferSize - readPos - 1, buffer.constData() + readPos);
-//        insertPos += (bufferSize - readPos - 1);
-//        bytesToRead -= (bufferSize - readPos - 1);
-//        readPos = 0;
-//    }
-
-//    dataRead = dataRead.replace(insertPos, bytesToRead, buffer.constData() + readPos);
-//    readPos += bytesToRead;
-//    bytesToRead = 0;
-//}
-
 QByteArray CircularBuffer::readAll()
 {
     QByteArray dataRead(bytesToRead, 0);
@@ -77,3 +60,22 @@ QByteArray CircularBuffer::readAll()
 
     return dataRead;
 }
+
+/*
+QByteArray CircularBuffer::readAll()
+{
+    QByteArray dataRead(bytesToRead, 0);
+    int insertPos = 0;
+
+    if (bytesToRead > (bufferSize - readPos)) {
+        dataRead = dataRead.replace(0, bufferSize - readPos - 1, buffer.constData() + readPos);
+        insertPos += (bufferSize - readPos - 1);
+        bytesToRead -= (bufferSize - readPos - 1);
+        readPos = 0;
+    }
+
+    dataRead = dataRead.replace(insertPos, bytesToRead, buffer.constData() + readPos);
+    readPos += bytesToRead;
+    bytesToRead = 0;
+}
+*/

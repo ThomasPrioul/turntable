@@ -18,7 +18,6 @@ void ClientNetwork::connectToHost(const QString &hostName, quint16 port)
     this->hostName = hostName;
     this->port = port;
 
-    qDebug() << "Network : connect(" << hostName << ", " << port << ")";
     readBuffer.flush();
     socket.connectToHost(hostName, port);
 }
@@ -30,8 +29,7 @@ void ClientNetwork::disconnectFromHost()
 
     socket.disconnectFromHost();
     readBuffer.flush();
-
-    qDebug() << "Network : disconnect()";
+    //qDebug() << "Network : disconnect()";
 }
 
 void ClientNetwork::socketDataAvailable()
@@ -46,8 +44,8 @@ void ClientNetwork::socketDataAvailable()
                 readBuffer.putChar(readChar);
             }
             else {
-                qDebug() << "Message: " << QString(readBuffer.readAll());
-                //emit messageReceived(readBuffer.readAll());
+                //qDebug() << "Message: " << QString(readBuffer.readAll());
+                emit messageReceived(readBuffer.readAll());
             }
         }
         else  {
