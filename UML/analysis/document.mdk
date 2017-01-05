@@ -34,7 +34,7 @@ On rappellera d'abord le contexte du projet, avant de présenter les analyses qu
 
 Cette partie est un bref rappel du cahier de spécifications.
 
-Il s'agit de réaliser un pont tournant pour le modélisme ferroviaire, commandé par une RaspberryPi 2 dotée d'un écran tactile. Ce pont s'intègre dans un système existant composé d'une partie "manuelle" où les trains et les aiguillages sont commandés directement par l'utilisateur, et d'une partie automatisée où des scripts décrivent les itinéraires des trains (les aiguillages et signalisations sont changés en conséquence). *Ce système est géré par un serveur central sur lequel plusieurs clients peuvent venir se connecter.*
+Il s'agit de réaliser un pont tournant pour le modélisme ferroviaire, commandé par une RaspberryPi 2 dotée d'un écran tactile. Ce pont s'intègre dans un système existant composé d'une partie "manuelle" où les trains et les aiguillages sont commandés directement par l'utilisateur, et d'une partie automatisée où des scripts décrivent les itinéraires des trains (les aiguillages et signalisations sont changés en conséquence). **Ce système est géré par un serveur central sur lequel plusieurs clients peuvent venir se connecter.**
 
 Le pont tourne à l'aide d'un moteur pas à pas, commandé par une carte "driver", elle-même connectée à la RaspberryPi via des GPIO.
 
@@ -56,7 +56,7 @@ Le projet est réalisé pour **M. Cédric Charles**, qui possède la maquette de
 ## Attentes
 Le but est avant tout d'avoir une plaque tournante commandée depuis la RaspberryPi, ainsi que la commande du dépôt, des trains et des scripts.
 
-Si le temps le permet, le programme devrait être étendu afin de remplacer le client PC vieillissant ainsi qu'un client pour smartphone écrit en Java et dont le développement n'est plus actif.
+Si le temps le permet, le programme pourrait être étendu afin de remplacer le client PC vieillissant ainsi qu'un client pour smartphone écrit en Java et dont le développement n'est plus actif.
 Le client doit donc être multi-plateforme et léger (pour les cibles Android).
 
 La modification du serveur est également optionnelle, elle n'est pas essentielle à la réalisation du projet.
@@ -101,33 +101,77 @@ On y voit deux blocs principaux, qui sont **DCC client GUI** et **Turntable work
 Afin de séparer au mieux les tâches que doit réaliser l'informatique embarquée, il a été décidé de séparer le projet en deux **logiciels** (processus) distincts :
 
 * Une **interface graphique**, qui sera un client du serveur central via un socket TCP.
-* Un **service** pour le contrôle de la plaque tournante, qui sera un programme en ligne de commande connecté au serveur central via un socket TCP. Dans cette relation, le **service** est un serveur et ce qu'on a appelé "serveur central" (serveur DCC) est un client.
+* Un **service** pour le contrôle de la plaque tournante, qui sera un programme en ligne de commande connecté au serveur central via un socket TCP. Dans cette relation, le **service** est un serveur et ce qu'on a auparavant appelé "serveur central" (serveur DCC) est un client.
 
 ~ Note
 On appellera respectivement ces logiciels "**client DCC**" et "**service plaque tournante**" par la suite.
 ~
 
-Cela permet deux choses : 
+~ Note
+On appellera le serveur central du système le "**serveur DCC**" par la suite.
+~
+
+Cela permet deux choses :
+
 * Distribuer le même code du client pour chaque plateforme cible, sans se soucier du support sur lequel il est exécuté, et sans compilation conditionnelle.
 * Séparer la notion de **service plaque tournante** de celle de **client** du système, permettant l'exploitation de la plaque par un autre client lorsque le logiciel graphique n'est pas lancé sur la RaspberryPi. Ce deuxième logiciel sera un démon système (un service) sur l'OS Linux et sera donc dédié au pilotage de la plaque tournante.
 
-Séparer les programmes en deux permet également de simplifier la mise en oeuvre de pilotage de la plaque tournante, car on peut simuler les ordres venant du réseau à l'aide d'un serveur de test, ou même directement envoyer des trames depuis le client DCC à l'aide d'un socket TCP.
+Séparer les programmes en deux permet également de simplifier la mise en oeuvre de pilotage de la plaque tournante, car on peut simuler les ordres venant du réseau à l'aide d'un serveur de test, ou même directement envoyer des trames depuis le client DCC à l'aide d'un socket TCP. Enfin, les deux fonctionnalités peuvent être développées en parralèle sans incidence sur le fonctionnement de l'une ou l'autre.
 
 Il a été décidé d'implémenter le client DCC en C++ avec le framework Qt5, car c'est un vrai framework multi-plateforme (Windows, Linux, Mac, iPhone, Android...) et qu'il est assez léger. Il est également gratuit dans sa version "community".
 
-Le service plaque tournante sera lui implémenté en C/C++, et peut-être avec Qt pour l'unification des codes sources et la simplicité d'utilisation des sockets. La librairie WiringPi (en C) permettra de contrôler les GPIO de la RaspberryPi.
+Le service plaque tournante sera lui implémenté en C/C++, et peut-être avec Qt pour l'unification des codes sources et la simplicité d'utilisation des sockets (à confirmer lors de la réalisation). La librairie WiringPi (en C) permettra de contrôler les GPIO de la RaspberryPi.
 
-## Diagramme de classes
+Maintenant que nous avons présenté les deux composants logiciels, nous allons voir l'analyse UML qui a été réalisée pour chacun d'eux.
+
+## Analyse UML
+
+### Client DCC
+
+Pour bien représenter l'application dans son ensemble, il faut identifier sa composante principale. Ici, la composante principale est le réseau. C'est l'état du réseau et de la connexion avec le serveur qui déterminent l'évolution de l'application. C'est pourquoi nous allons commencer par une représentation en machine d'état de l'application.
+
+#### Diagramme de machine d'état
+
+~ Figure { #fig-statemachine; caption: "Machine d'état de l'application" }
+![statemachine]
+~
+
+On retrouve deux états principaux dans l'application : 
+
+* L'état de connexion inactive,
+* L'état de connexion active.
+
+##### Connexion inactive
+
+Dans l'état de connexion inactive, l'utilisateur est limité à certaines interfaces utilisateur lui permettant de configurer le client, et notamment la connexion réseau.
+
+C'est donc logiquement que l'on retrouve deux sous-états : 
+
+* Non configuré,
+* Prêt à démarrer.
+
+Le passage d'un état à un autre se fait via le remplissage des champs de connexion dans l'interface utilisateur.
+L'utilisateur n'a plus qu'à utiliser un bouton de connexion pour changer d'état principal (vers connexion active).
+
+Bien évidemment, l'utilisateur peut quitter l'application à tout moment, peut importe l'état dans lequel elle se trouve. Il est possible que des états de transition existent pour nettoyer les ressources utilisées, par exemple.
+
+##### Connexion active
+
+Dans cet état, on retrouve le cas d'utilisation principal de l'application, qui est d'exploiter les informations et les commandes données par le serveur DCC.
+
+#### Diagramme de classes
+
+Voici un découpage en classes du logiciel graphique
 
 ~ Figure { #fig-classdiagram; caption: "Diagramme de classes" }
 ![classdiagram]
 ~
 
+### Service plaque tournante
+
 ## Machine d'état de l'application
 
-~ Figure { #fig-statemachine; caption: "Machine d'état globale" }
-![statemachine]
-~
+
 
 
 ![software_arch]
