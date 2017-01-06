@@ -251,12 +251,21 @@ Lorsque le mouvement est terminé, le logiciel attend de nouvelles commandes, sa
 À ce moment là, le logiciel repasse en état *client déconnecté*.
 
 Ce logiciel est globalement plus simple que le premier, ayant moins de fonctionnalités à gérer.
-Passons maintenant au diaramme de classes.
+Passons maintenant au diagramme de classes.
 
 #### Diagramme de classes
 
+~ Figure { #fig-svc_classdiagram; caption: "Diagramme de classe du service plaque tournante" }
+![classdiagram_svc]
+~
+
+
 [synoptic]: images/synoptic.png "synoptic" { width:auto; max-width:90% }
+
+[rpi_software]: images/rpi_software.png "rpi_software" { width:auto; max-width:90% }
+
 [classdiagram]: images/classdiagram.png "client_classdiagram" { width:auto; max-width:90% }
 [statemachine]: images/statemachine.png "client_statemachine" { width:auto; max-width:90% }
-[rpi_software]: images/rpi_software.png "rpi_software" { width:auto; max-width:90% }
+
 [statemachine_svc]: images/statemachine_svc.png "svc_statemachine" { width:auto; max-width:90% }
+[classdiagram_svc]: images/classdiagram_svc.png "classdiagram_svc" { width:auto; max-width:90% }
