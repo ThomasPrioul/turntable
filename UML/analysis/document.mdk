@@ -145,7 +145,7 @@ C'est pourquoi nous allons commencer par une représentation en machine d'état 
 
 #### Diagramme de machine d'état
 
-~ Figure { #fig-statemachine; caption: "Machine d'état du client DCC" }
+~ Figure { #fig-client_statemachine; caption: "Machine d'état du client DCC" }
 ![statemachine]
 ~
 
@@ -207,7 +207,7 @@ En cas de succès, l'état connecté sera de nouveau actifs, **les sous-états**
 
 Voici un découpage en classes du client DCC.
 
-~ Figure { #fig-classdiagram; caption: "Diagramme de classes client DCC" }
+~ Figure { #fig-client_classdiagram; caption: "Diagramme de classes client DCC" }
 ![classdiagram]
 ~
 
@@ -225,9 +225,13 @@ En effet, un objet intermédiaire de sérialisation permet de contrôler le form
 ### Service plaque tournante
 
 Nous allons maintenant voir la description du service plaque tournante.
+Commençons comme pour le client D
 
 #### Machine d'état
 
+~ Figure { #fig-svc_statemachine; caption: "Machine d'état du service plaque tournante" }
+![statemachine_svc]
+~
 
 
 #### Diagramme de classes
@@ -238,3 +242,5 @@ Nous allons maintenant voir la description du service plaque tournante.
 [classdiagram]: images/classdiagram.png "classdiagram" { width:auto; max-width:100% }
 [statemachine]: images/statemachine.png "statemachine" { width:auto; max-width:100% }
 [rpi_software]: images/rpi_software.png "rpi_software" { width:auto; max-width:90% }
+
+[statemachine_svc]: images/statemachine_svc.png "statemachine_svc" { width:auto; max-width:90% }
