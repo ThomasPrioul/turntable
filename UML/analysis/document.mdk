@@ -34,13 +34,16 @@ On rappellera d'abord le contexte du projet, avant de présenter les analyses qu
 
 Cette partie est un bref rappel du cahier de spécifications.
 
-Il s'agit de réaliser un pont tournant pour le modélisme ferroviaire, commandé par une RaspberryPi 2 dotée d'un écran tactile. Ce pont s'intègre dans un système existant composé d'une partie "manuelle" où les trains et les aiguillages sont commandés directement par l'utilisateur, et d'une partie automatisée où des scripts décrivent les itinéraires des trains (les aiguillages et signalisations sont changés en conséquence). **Ce système est géré par un serveur central sur lequel plusieurs clients peuvent venir se connecter.**
+Il s'agit de réaliser un pont tournant pour le modélisme ferroviaire, commandé par une RaspberryPi 2 dotée d'un écran tactile.
+Ce pont s'intègre dans un système existant composé d'une partie "manuelle" où les trains et les aiguillages sont commandés directement par l'utilisateur, et d'une partie automatisée où des scripts décrivent les itinéraires des trains (les aiguillages et signalisations sont changés en conséquence).
+**Ce système est géré par un serveur central sur lequel plusieurs clients peuvent venir se connecter.**
 
 Le pont tourne à l'aide d'un moteur pas à pas, commandé par une carte "driver", elle-même connectée à la RaspberryPi via des GPIO.
 
 ## Liste des fonctionnalités souhaitées
 
-La RaspberryPi devra présenter une interface homme-machine afin de pouvoir contrôler sur place la rotation du pont. De plus, elle devra reprendre certains éléments d'un client existant afin de contrôler le reste du réseau de modélisme (comme le dépôt faisant l'interface entre partie manuelle et automatisée du circuit).
+La RaspberryPi devra présenter une interface homme-machine afin de pouvoir contrôler sur place la rotation du pont.
+De plus, elle devra reprendre certains éléments d'un client existant afin de contrôler le reste du réseau de modélisme (comme le dépôt faisant l'interface entre partie manuelle et automatisée du circuit).
 
 On retrouve au final quatre fonctionnalités principales:
 
@@ -88,7 +91,8 @@ Voici un rappel de la structure du système existant, avec la place que prend la
 On remarque que la RaspberryPi occupe deux rôles dans ce système. Nous y reviendrons dans la section [#software_decomposition].
 
 Dans le cahier de spécifications, nous avons présenté les diagrammes en blocs de chacun des sous-systèmes du schéma précédent.
-Notamment, les blocs logiciels sur la RaspberryPi avaient été présentés. Voici ci-dessous le diagramme présenté dans le cahier de spécifications.
+Notamment, les blocs logiciels sur la RaspberryPi avaient été présentés.
+Voici ci-dessous le diagramme présenté dans le cahier de spécifications.
 
 ~ Figure { #fig-rpi_soft; caption: "Blocs logiciels RaspberryPi" }
 ![rpi_software]
@@ -114,13 +118,17 @@ On appellera le serveur central du système le "**serveur DCC**" par la suite.
 Cela permet deux choses :
 
 * Distribuer le même code du client pour chaque plateforme cible, sans se soucier du support sur lequel il est exécuté, et sans compilation conditionnelle.
-* Séparer la notion de **service plaque tournante** de celle de **client** du système, permettant l'exploitation de la plaque par un autre client lorsque le logiciel graphique n'est pas lancé sur la RaspberryPi. Ce deuxième logiciel sera un démon système (un service) sur l'OS Linux et sera donc dédié au pilotage de la plaque tournante.
+* Séparer la notion de **service plaque tournante** de celle de **client** du système, permettant l'exploitation de la plaque par un autre client lorsque le logiciel graphique n'est pas lancé sur la RaspberryPi.
+Ce deuxième logiciel sera un démon système (un service) sur l'OS Linux et sera donc dédié au pilotage de la plaque tournante.
 
-Séparer les programmes en deux permet également de simplifier la mise en oeuvre de pilotage de la plaque tournante, car on peut simuler les ordres venant du réseau à l'aide d'un serveur de test, ou même directement envoyer des trames depuis le client DCC à l'aide d'un socket TCP. Enfin, les deux fonctionnalités peuvent être développées en parralèle sans incidence sur le fonctionnement de l'une ou l'autre.
+Séparer les programmes en deux permet également de simplifier la mise en oeuvre de pilotage de la plaque tournante, car on peut simuler les ordres venant du réseau à l'aide d'un serveur de test, ou même directement envoyer des trames depuis le client DCC à l'aide d'un socket TCP.
+Enfin, les deux fonctionnalités peuvent être développées en parralèle sans incidence sur le fonctionnement de l'une ou l'autre.
 
-Il a été décidé d'implémenter le client DCC en C++ avec le framework Qt5, car c'est un vrai framework multi-plateforme (Windows, Linux, Mac, iPhone, Android...) et qu'il est assez léger. Il est également gratuit dans sa version "community".
+Il a été décidé d'implémenter le client DCC en C++ avec le framework Qt5, car c'est un vrai framework multi-plateforme (Windows, Linux, Mac, iPhone, Android...) et qu'il est assez léger.
+Il est également gratuit dans sa version "community".
 
-Le service plaque tournante sera lui implémenté en C/C++, et peut-être avec Qt pour l'unification des codes sources et la simplicité d'utilisation des sockets (à confirmer lors de la réalisation). La librairie WiringPi (en C) permettra de contrôler les GPIO de la RaspberryPi.
+Le service plaque tournante sera lui implémenté en C/C++, et peut-être avec Qt pour l'unification des codes sources et la simplicité d'utilisation des sockets (à confirmer lors de la réalisation).
+La librairie WiringPi (en C) permettra de contrôler les GPIO de la RaspberryPi.
 
 Maintenant que nous avons présenté les deux composants logiciels, nous allons voir l'analyse UML qui a été réalisée pour chacun d'eux.
 
@@ -129,7 +137,10 @@ Maintenant que nous avons présenté les deux composants logiciels, nous allons 
 ## Analyse UML
 ### Client DCC
 
-Pour bien représenter l'application dans son ensemble, il faut identifier sa composante principale. Ici, la composante principale est le réseau. C'est l'état du réseau et de la connexion avec le serveur qui déterminent l'évolution de l'application. C'est pourquoi nous allons commencer par une représentation en machine d'état de l'application.
+Pour bien représenter l'application dans son ensemble, il faut identifier sa composante principale.
+Ici, la composante principale est le réseau.
+C'est l'état du réseau et de la connexion avec le serveur qui déterminent l'évolution de l'application.
+C'est pourquoi nous allons commencer par une représentation en machine d'état de l'application.
 
 
 
@@ -158,7 +169,8 @@ C'est donc logiquement que l'on retrouve deux sous-états :
 Le passage d'un état à un autre se fait via le remplissage des champs de connexion dans l'interface utilisateur.
 L'utilisateur n'a plus qu'à utiliser un bouton de connexion pour changer d'état principal (vers connexion active).
 
-Bien évidemment, l'utilisateur peut quitter l'application à tout moment, peut importe l'état dans lequel elle se trouve. Il est possible que des états de transition existent pour nettoyer les ressources utilisées, par exemple.
+Bien évidemment, l'utilisateur peut quitter l'application à tout moment, peut importe l'état dans lequel elle se trouve.
+Il est possible que des états de transition existent pour nettoyer les ressources utilisées, par exemple.
 
 
 
@@ -173,7 +185,9 @@ On distingue quatre sous-états:
 * Connecté,
 * Connexion perdue.
 
-Le premier état est *connexion en cours*. En case de succès de la connexion, on bascule en état *connecté*. En cas d'échec, on passe en état *échec de connexion*. Il est possible de réessayer, ce qui repasse la machine à l'état *connexion en cours*.
+Le premier état est *connexion en cours*. En cas de succès de la connexion, on bascule en état *connecté*.
+En cas d'échec, on passe en état *échec de connexion*.
+Il est possible de réessayer, ce qui repasse la machine à l'état *connexion en cours*.
 
 L'état *connecté* comprend des sous-machines en parallèle correspondant aux quatre grandes fonctionnalités du logiciel.
 Ces quatre machines sont basées sur un modèle commun :
@@ -182,7 +196,11 @@ Ces quatre machines sont basées sur un modèle commun :
 * Données prêtes,
 * Exploitation d'une sous-fonctionnalité.
 
-Lors d'une perte de connexion ou d'activité (voir section XXX), la machine passe à l'état *connexion perdue*, ce qui va figer les élements de l'interface utilisateur jusqu'à ce que la connexion soit revenue. Dans cet état, l'utilisateur peut décider d'arrêter la communication. Une **temporisation** intervient au bout de **30 secondes** et fait passer l'application en état *connexion inactive*. Pendant ces 30 secondes, l'application tentera de se reconnecter au serveur DCC. En cas de succès, l'état connecté sera de nouveau actifs, **les sous-états** gardent leurs états actifs précédents et **ne repassent pas par l'état d'initialisation**.
+Lors d'une perte de connexion ou d'activité (voir section XXX), la machine passe à l'état *connexion perdue*, ce qui va figer les élements de l'interface utilisateur jusqu'à ce que la connexion soit revenue.
+Dans cet état, l'utilisateur peut décider d'arrêter la communication.
+Une **temporisation** intervient au bout de **30 secondes** et fait passer l'application en état *connexion inactive*.
+Pendant ces 30 secondes, l'application tentera de se reconnecter au serveur DCC.
+En cas de succès, l'état connecté sera de nouveau actifs, **les sous-états** gardent leurs états actifs précédents et **ne repassent pas par l'état d'initialisation**.
 
 
 
@@ -193,6 +211,17 @@ Voici un découpage en classes du client DCC.
 ~ Figure { #fig-classdiagram; caption: "Diagramme de classes" }
 ![classdiagram]
 ~
+
+On retrouve logiquement des éléments décrits implicitement par le diagramme d'état :
+
+* Une classe **Network**, pour la gestion du réseau et l'envoi/réception de messages vers le serveur.
+* Une classe **Application**, qui contient la machine d'état.
+* Une classe **FrontEndComponent**, qui est la classe de base pour les quatre modules de fonctionnalité du logiciel. Elle fournit un accès unifié au réseau (classe Network) et à un système de log.
+
+On a donc quatre classes qui héritent de **FrontEndComponent** afin de fournir les fonctionnalités utilisateur de l'application.
+On voit aussi la notion de **Serializer** dans le diagramme.
+Cette notion pourra être utilisée pour simplifier le changement du protocole réseau, qui est décrit dans la section XXX.
+En effet, un objet intermédiaire de sérialisation permet de contrôler le format des données sur le réseau, et surtout de l'encapsuler.
 
 ### Service plaque tournante
 
