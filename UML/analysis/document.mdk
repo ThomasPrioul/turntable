@@ -214,7 +214,7 @@ Voici un découpage en classes du client DCC.
 On retrouve logiquement des éléments décrits implicitement par le diagramme d'état :
 
 * Une classe **Network**, pour la gestion du réseau et l'envoi/réception de messages vers le serveur.
-* Une classe **Application**, qui contient la machine d'état et gère les sous-modules en fonction de l'état du réseau renvoyé par la classe **Network**.
+* Une classe **Application**, qui contient la machine d'état et gère les sous-modules en fonction de l'état du réseau renvoyé par la classe Network.
 * Une classe **FrontEndComponent**, qui est la classe de base pour les quatre modules de fonctionnalité du logiciel. Elle fournit un accès unifié au réseau (classe Network) et à un système de log (fourni par la classe **Logger**).
 
 On a donc quatre classes qui héritent de **FrontEndComponent** afin de fournir les fonctionnalités utilisateur de l'application.
@@ -225,7 +225,7 @@ En effet, un objet intermédiaire de sérialisation permet de contrôler le form
 ### Service plaque tournante
 
 Nous allons maintenant voir la description du service plaque tournante.
-Commençons comme pour le client D
+Commençons comme pour le client DCC par une machine d'état.
 
 #### Machine d'état
 
@@ -233,14 +233,30 @@ Commençons comme pour le client D
 ![statemachine_svc]
 ~
 
+Ici, la machine d'état est assez simple.
+On retrouve deux états principaux (en ne comptant pas l'état d'initialisation) : 
+
+* client déconnecté,
+* client connecté.
+
+Une fois encore, on voit que le réseau est une partie essentielle du programme.
+
+Le changement d'état principal est conditionné par la connexion/déconnexion du client.
+Lors de chaque connexion, le moteur est remis à la position 0.
+
+L'état le plus commun sera l'état **repos** (idle).
+Le système passe en état **déplacement** lorsqu'une commande est disponible.
+Dans cet état, il est possible d'arrêter immédiatement la plaque, ou d'annuler le mouvement en cours en le remplaçant par un autre mouvement.
+Lorsque le mouvement est terminé, le logiciel attend de nouvelles commandes, sauf si le client s'est déconnecté depuis la dernière commande.
+À ce moment là, le logiciel repasse en état *client déconnecté*.
+
+Ce logiciel est globalement plus simple que le premier, ayant moins de fonctionnalités à gérer.
+Passons maintenant au diaramme de classes.
 
 #### Diagramme de classes
 
-
-
 [synoptic]: images/synoptic.png "synoptic" { width:auto; max-width:90% }
-[classdiagram]: images/classdiagram.png "classdiagram" { width:auto; max-width:100% }
-[statemachine]: images/statemachine.png "statemachine" { width:auto; max-width:100% }
+[classdiagram]: images/classdiagram.png "client_classdiagram" { width:auto; max-width:90% }
+[statemachine]: images/statemachine.png "client_statemachine" { width:auto; max-width:90% }
 [rpi_software]: images/rpi_software.png "rpi_software" { width:auto; max-width:90% }
-
-[statemachine_svc]: images/statemachine_svc.png "statemachine_svc" { width:auto; max-width:90% }
+[statemachine_svc]: images/statemachine_svc.png "svc_statemachine" { width:auto; max-width:90% }
