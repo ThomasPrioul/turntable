@@ -1,10 +1,11 @@
 Doc class     : [10pt]article
-Title         : Pont tournant pour le modélisme ferroviaire
+Title         : PFE DII5: pont tournant pour le modélisme ferroviaire
 Sub Title     : Cahier d'analyse
 Author        : Thomas Prioul
 Affiliation   : Polytech' Tours
 Email         : thomas.prioul@etu.univ-tours.fr
 Locale        : fr-FR
+Title Note    : &date; (version 1.0)
 
 Colorizer     : cpp
 Logo          : True
@@ -17,8 +18,6 @@ Bibliography  : example
 
 [TITLE]
 [TOC]
-
-
 
 
 # Introduction {-}
@@ -146,7 +145,7 @@ C'est pourquoi nous allons commencer par une représentation en machine d'état 
 
 #### Diagramme de machine d'état
 
-~ Figure { #fig-statemachine; caption: "Machine d'état de l'application" }
+~ Figure { #fig-statemachine; caption: "Machine d'état du client DCC" }
 ![statemachine]
 ~
 
@@ -208,24 +207,30 @@ En cas de succès, l'état connecté sera de nouveau actifs, **les sous-états**
 
 Voici un découpage en classes du client DCC.
 
-~ Figure { #fig-classdiagram; caption: "Diagramme de classes" }
+~ Figure { #fig-classdiagram; caption: "Diagramme de classes client DCC" }
 ![classdiagram]
 ~
 
 On retrouve logiquement des éléments décrits implicitement par le diagramme d'état :
 
 * Une classe **Network**, pour la gestion du réseau et l'envoi/réception de messages vers le serveur.
-* Une classe **Application**, qui contient la machine d'état.
-* Une classe **FrontEndComponent**, qui est la classe de base pour les quatre modules de fonctionnalité du logiciel. Elle fournit un accès unifié au réseau (classe Network) et à un système de log.
+* Une classe **Application**, qui contient la machine d'état et gère les sous-modules en fonction de l'état du réseau renvoyé par la classe **Network**.
+* Une classe **FrontEndComponent**, qui est la classe de base pour les quatre modules de fonctionnalité du logiciel. Elle fournit un accès unifié au réseau (classe Network) et à un système de log (fourni par la classe **Logger**).
 
 On a donc quatre classes qui héritent de **FrontEndComponent** afin de fournir les fonctionnalités utilisateur de l'application.
 On voit aussi la notion de **Serializer** dans le diagramme.
 Cette notion pourra être utilisée pour simplifier le changement du protocole réseau, qui est décrit dans la section XXX.
-En effet, un objet intermédiaire de sérialisation permet de contrôler le format des données sur le réseau, et surtout de l'encapsuler.
+En effet, un objet intermédiaire de sérialisation permet de contrôler le format des données sur le réseau, et surtout de l'encapsuler. Pour une première implémentation du logiciel, cette notion n'est pas forcément nécessaire, car il y a de faibles chances que le serveur soit modifié avant la fin du projet.
 
 ### Service plaque tournante
 
+Nous allons maintenant voir la description du service plaque tournante.
 
+#### Machine d'état
+
+
+
+#### Diagramme de classes
 
 
 
