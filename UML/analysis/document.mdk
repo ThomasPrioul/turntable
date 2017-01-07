@@ -260,7 +260,57 @@ Passons maintenant au diagramme de classes.
 ~
 
 Ce programme étant plus simple que le client DCC, on retrouve cette simplicité dans le diagramme de classes.
-Globalement, 
+Une classe *Application* implémente la machine d'état vue précèdemment, à l'aide d'une énumeration *ApplicationState* représentant tous les états possibles de l'application.
+Une classe *Network* fournit l'accès réseau et les évènements de connection/déconnection du client.
+Enfin une classe *Motor* implémente les méthodes de contrôle du moteur :
+
+* Recherche du zéro (reset),
+* Déplacement,
+* Notification de la position courante,
+* Arrêt immédiat du mouvement en cours.
+
+Cette classe *Motor* utilisera les fonctionnalités GPIO de la Raspberry, tandis que la classe *Network* utilisera un socket TCP.
+
+### Protocoles de communication réseau
+
+Dans cette partie, on retouve la spécification des protocoles de communication réseau utilisés par le système.
+En outre, on retrouve les diagrammes de séquence décrivant les échanges les plus réalisés sur le réseau. 
+
+#### Client DCC et serveur DCC
+
+Le client DCC et le serveur DCC communiquent à l'aide d'un socket TCP. Des messages au format ASCII sont envoyés aussi bien pour les commandes des clients que pour les réponses du serveur.
+Ce protocole a été créé par M. Charles pour la communication entre son client DCC et le serveur DCC, écrit par un collègue de travail.
+
+Le format de la commande est le suivant :
+
+* *En-tête* sur **deux** caractères,
+* *Données* (facultatif), une chaine de caractères par donnée, séparées par des espaces,
+* *Fin de commande*, caractère **\r**.
+
+L'en-tête est sur deux caractères. Le premier caractère représente une catégorie de commandes.
+Exemples de catégories : 
+
+* L pour locomotives,
+* X pour les scripts,
+* S pour les signaux.
+
+Le deuxième spécifie la fonction demandée au serveur.
+
+Voici quelques exemples de demandes client : 
+
+~ { border-style : solid }
+Message | En-tête | Données
+------- | ------- | -------
+Lister locomotives | LL      | 
+Passer un signal à 0 | SF | IdSignal 0
+Passer un signal à 1 | SF | IdSignal 1
+~ 
+
+
+
+#### Serveur DCC et service plaque tournante
+
+
 
 [synoptic]: images/synoptic.png "synoptic" { width:auto; max-width:90% }
 
