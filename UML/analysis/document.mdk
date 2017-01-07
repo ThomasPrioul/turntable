@@ -259,6 +259,8 @@ Passons maintenant au diagramme de classes.
 ![classdiagram_svc]
 ~
 
+Ce programme étant plus simple que le client DCC, on retrouve cette simplicité dans le diagramme de classes.
+Globalement, 
 
 [synoptic]: images/synoptic.png "synoptic" { width:auto; max-width:90% }
 
