@@ -195,7 +195,7 @@ Ces quatre machines sont basées sur un modèle commun :
 * Données prêtes,
 * Exploitation d'une sous-fonctionnalité.
 
-Lors d'une perte de connexion ou d'activité (voir section XXX), la machine passe à l'état *connexion perdue*, ce qui va figer les élements de l'interface utilisateur jusqu'à ce que la connexion soit revenue.
+Lors d'une perte de connexion ou d'activité (voir section [#software_protocol]), la machine passe à l'état *connexion perdue*, ce qui va figer les élements de l'interface utilisateur jusqu'à ce que la connexion soit revenue.
 Dans cet état, l'utilisateur peut décider d'arrêter la communication.
 Une **temporisation** intervient au bout de **30 secondes** et fait passer l'application en état *connexion inactive*.
 Pendant ces 30 secondes, l'application tentera de se reconnecter au serveur DCC.
@@ -219,7 +219,7 @@ On retrouve logiquement des éléments décrits implicitement par le diagramme d
 
 On a donc quatre classes qui héritent de **FrontEndComponent** afin de fournir les fonctionnalités utilisateur de l'application.
 On voit aussi la notion de **Serializer** dans le diagramme.
-Cette notion pourra être utilisée pour simplifier le changement du protocole réseau, qui est décrit dans la section XXX.
+Cette notion pourra être utilisée pour simplifier le changement du protocole réseau, qui est décrit dans la section [#software_protocol].
 En effet, un objet intermédiaire de sérialisation permet de contrôler le format des données sur le réseau, et surtout de l'encapsuler. Pour une première implémentation du logiciel, cette notion n'est pas forcément nécessaire, car il y a de faibles chances que le serveur soit modifié avant la fin du projet.
 
 ### Service plaque tournante
@@ -271,7 +271,10 @@ Enfin une classe *Motor* implémente les méthodes de contrôle du moteur :
 
 Cette classe *Motor* utilisera les fonctionnalités GPIO de la Raspberry, tandis que la classe *Network* utilisera un socket TCP.
 
-### Protocoles de communication réseau
+
+
+
+### Protocoles de communication réseau { #software_protocol }
 
 Dans cette partie, on retouve la spécification des protocoles de communication réseau utilisés par le système.
 En outre, on retrouve les diagrammes de séquence décrivant les échanges les plus réalisés sur le réseau. 
@@ -296,21 +299,86 @@ Exemples de catégories :
 
 Le deuxième spécifie la fonction demandée au serveur.
 
-Voici quelques exemples de demandes client : 
+##### Demandes du client DCC
 
-~ { border-style : solid }
-Message | En-tête | Données
-------- | ------- | -------
-Lister locomotives | LL      | 
-Passer un signal à 0 | SF | IdSignal 0
-Passer un signal à 1 | SF | IdSignal 1
-~ 
+Voici quelques exemples de demandes du client DCC : 
 
+| ---------------------| --------| -----------|
+| Message              | En-tête | Données    |
++----------------------+---------+------------+
+| Lister locomotives   | LL      |            |
+| Passer un signal à 0 | SF      | IdSignal 0 |
+| Passer un signal à 1 | SF      | IdSignal 1 |
+| -------------------- | ------- | ---------- |
 
+Cela se traduit sur le réseau par les chaines de caractères suivantes :
+
+* "LL\r",
+* "SF 37 0\r",
+* "SF 37 1\r".
+
+##### Réponses du serveur DCC
+
+Les réponses du serveur commencent par un en-tête correspondant à la commande du client.
+Le premier caractère de l'en-tête est décalé d'une lettre dans l'alphabet, le second caractère est le même.
+Ainsi pour une commande "CD", la réponse serveur est "DD".
+La liste de données du message de réponse est en général de longueur différente à celle de la commande du client.
+
+##### Messages spontanés du serveur
+
+Le serveur peut également envoyer spontanément des messages aux clients, par exemple, pour notifier tous les clients du déplacement d'une locomotive au sein d'un itinéraire.
+
+Tous les clients ne reçoivent pas tous ces messages, car ils doivent signaler au serveur les messages qui les intéressent.
+La commande à envoyer est "CS typeClient\r". TypeClient est un bitmask (envoyé sous forme décimale) où chaque bit déclare un type de fonctionnalité client :
+
+| ----| --------------------------------------------------|
+| Bit | Désignation                                       |
++-----+---------------------------------------------------+
+| 0   | **TCO Affichage** (affichage de la signalisation) |
+| 1   | **TCO Commande** (contrôle de la signalisation)   |
+| 2   | **Loc** (contrôle des locomotives et itinéraires) |
+| 3   | **TTS**	(annonces vocales en gare)                |
+| 4   | **Plaque** (plaque tournante)                     |
+| --- | ------------------------------------------------- |
+
+Pour le client DCC, il faudra donc avoir les bits 0,1,2, et 4 à la valeur 1 et le bit 3 à la valeur 0.
+Cela correspond à la valeur décimale 23. Il faudra donc envoyer "CS 23\r"
+
+##### Ligne de vie { #protocol-lifesign }
+
+Afin d'éviter que le socket TCP ne se ferme inopinément sur le serveur/client (par l'OS ou le framework utilisé...), une ligne de vie a été mise en place entre le client DCC existant et le serveur DCC.
+Il s'agit d'envoyer un message toutes les secondes au serveur, lui signifiant l'activité du client.
+Le serveur répond à chacun de ces messages.
+Le message envoyé par le client est "CV\r" et la réponse est "DV\r".
+
+L'intégralité du protocole réseau pour le serveur DCC est présenté dans un fichier annexe qui sera fourni dans les livrables du projet. Un aperçu de ce fichier était disponible dans les annexes du cahier de spécifications.
 
 #### Serveur DCC et service plaque tournante
 
+Voici le protocole qui sera utilisé dans un premier temps par le serveur DCC et la plaque tournante pour communiquer sur un socket TCP.
 
+| -------------------------| --------| -------------------------------------|
+| Message                  | En-tête | Données                              |
++--------------------------+---------+--------------------------------------+
+| Reset plaque             | RR      |                                      |
+| Stop                     | RS      |                                      |
+| Déplacer vers position   | RD      | Position (comprise entre 0 et 65535) |
+| Notification de position | RN      | Position (comprise entre 0 et 65535) |
+| -------------------------| --------| -------------------------------------|
+
+Le caractère R de catégorie de message a été choisi car il était disponible et qu'il peut signifier "Rotonde".
+Ensuite, pour les commandes :
+* R comme Reset,
+* S comme Stop,
+* D comme Déplacer,
+* N comme Notification.
+
+A l'exception du dernier message, les trois autres messages sont envoyés par le serveur DCC. Le message *Notification de position* est envoyé par le service plaque tournante lors du mouvement de la plaque.
+
+Pour les deux message *Déplacer vers position* et *Notification de position*, la position est envoyée sous forme décimale.
+En réalité la valeur sera comprise entre 0 et 19199.
+En effet, le moteur sera un moteur pas à pas de 200 pas, avec un rapport de réduction de 3 (poulie crantée) ainsi que 32 micro-pas par pas (driver de moteur).
+Cela fait 19200 pas de moteur possibles.
 
 [synoptic]: images/synoptic.png "synoptic" { width:auto; max-width:90% }
 
