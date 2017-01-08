@@ -5,7 +5,8 @@ Author        : Thomas Prioul
 Affiliation   : Polytech' Tours
 Email         : thomas.prioul@etu.univ-tours.fr
 Locale        : fr-FR
-Title Note    : &date; (version 1.0)
+Title Note    : &date; (version 0.6)
+Maketitle     : True
 
 Colorizer     : cpp
 Logo          : True
@@ -17,8 +18,16 @@ Bibliography  : example
 -->
 
 [TITLE]
+
+~TexRaw
+\newpage  
+~
+
 [TOC]
 
+~TexRaw
+\clearpage  
+~
 
 # Introduction {-}
 
@@ -73,9 +82,11 @@ En résumé, le projet implique :
 
 C'est la partie informatique embarquée qui est analysée dans ce document, les parties mécanique et électronique étant déjà conçues et en cours de fabrication par M. Charles.
 
+~TexRaw
+\clearpage  
+~
 
-
-# Architecture
+# Architecture logicielle
 
 Dans cette section, nous voyons l'architecture envisagée pour les composants logiciels du projet.
 
@@ -83,7 +94,7 @@ Dans cette section, nous voyons l'architecture envisagée pour les composants lo
 
 Voici un rappel de la structure du système existant, avec la place que prend la RaspberryPi dans ce système.
 
-~ Figure { #fig-synoptic; caption: "Synoptique du système" }
+~ Figure { #fig-synoptic; caption: "Synoptique du système"; page-align: forcehere }
 ![synoptic]
 ~ 
 
@@ -93,8 +104,9 @@ Dans le cahier de spécifications, nous avons présenté les diagrammes en blocs
 Notamment, les blocs logiciels sur la RaspberryPi avaient été présentés.
 Voici ci-dessous le diagramme présenté dans le cahier de spécifications.
 
-~ Figure { #fig-rpi_soft; caption: "Blocs logiciels RaspberryPi" }
 ![rpi_software]
+
+~ Figure { #fig-rpi_soft; caption: "Blocs logiciels RaspberryPi"; page-align: forcehere }
 ~
 
 On y voit deux blocs principaux, qui sont **DCC client GUI** et **Turntable worker**. Ces blocs ont des fonctions bien différentes et sont présentés dans la partie suivante.
@@ -131,7 +143,9 @@ La librairie WiringPi (en C) permettra de contrôler les GPIO de la RaspberryPi.
 
 Maintenant que nous avons présenté les deux composants logiciels, nous allons voir l'analyse UML qui a été réalisée pour chacun d'eux.
 
-
+~TexRaw
+\newpage  
+~
 
 ## Analyse UML
 ### Client DCC
@@ -141,11 +155,9 @@ Ici, la composante principale est le réseau.
 C'est l'état du réseau et de la connexion avec le serveur qui déterminent l'évolution de l'application.
 C'est pourquoi nous allons commencer par une représentation en machine d'état de l'application.
 
-
-
 #### Diagramme de machine d'état
 
-~ Figure { #fig-client_statemachine; caption: "Machine d'état du client DCC" }
+~ Figure { #fig-client_statemachine; caption: "Machine d'état du client DCC"; page-align: forcehere }
 ![statemachine]
 ~
 
@@ -195,19 +207,21 @@ Ces quatre machines sont basées sur un modèle commun :
 * Données prêtes,
 * Exploitation d'une sous-fonctionnalité.
 
-Lors d'une perte de connexion ou d'activité (voir section [#software_protocol]), la machine passe à l'état *connexion perdue*, ce qui va figer les élements de l'interface utilisateur jusqu'à ce que la connexion soit revenue.
+Lors d'une perte de connexion ou d'activité (voir section [#protocol-lifesign]), la machine passe à l'état *connexion perdue*, ce qui va figer les élements de l'interface utilisateur jusqu'à ce que la connexion soit revenue.
 Dans cet état, l'utilisateur peut décider d'arrêter la communication.
 Une **temporisation** intervient au bout de **30 secondes** et fait passer l'application en état *connexion inactive*.
 Pendant ces 30 secondes, l'application tentera de se reconnecter au serveur DCC.
 En cas de succès, l'état connecté sera de nouveau actifs, **les sous-états** gardent leurs états actifs précédents et **ne repassent pas par l'état d'initialisation**.
 
-
+~TexRaw
+\clearpage  
+~
 
 #### Diagramme de classes
 
 Voici un découpage en classes du client DCC.
 
-~ Figure { #fig-client_classdiagram; caption: "Diagramme de classes client DCC" }
+~ Figure { #fig-client_classdiagram; caption: "Diagramme de classes client DCC"; page-align: forcehere }
 ![classdiagram]
 ~
 
@@ -229,7 +243,7 @@ Commençons comme pour le client DCC par une machine d'état.
 
 #### Machine d'état
 
-~ Figure { #fig-svc_statemachine; caption: "Machine d'état du service plaque tournante" }
+~ Figure { #fig-svc_statemachine; caption: "Machine d'état du service plaque tournante"; page-align: forcehere }
 ![statemachine_svc]
 ~
 
@@ -255,7 +269,7 @@ Passons maintenant au diagramme de classes.
 
 #### Diagramme de classes
 
-~ Figure { #fig-svc_classdiagram; caption: "Diagramme de classe du service plaque tournante" }
+~ Figure { #fig-svc_classdiagram; caption: "Diagramme de classe du service plaque tournante"; page-align: forcehere }
 ![classdiagram_svc]
 ~
 
@@ -272,7 +286,9 @@ Enfin une classe *Motor* implémente les méthodes de contrôle du moteur :
 Cette classe *Motor* utilisera les fonctionnalités GPIO de la Raspberry, tandis que la classe *Network* utilisera un socket TCP.
 
 
-
+~TexRaw
+\newpage  
+~
 
 ### Protocoles de communication réseau { #software_protocol }
 
@@ -353,6 +369,10 @@ Le message envoyé par le client est "CV\r" et la réponse est "DV\r".
 
 L'intégralité du protocole réseau pour le serveur DCC est présenté dans un fichier annexe qui sera fourni dans les livrables du projet. Un aperçu de ce fichier était disponible dans les annexes du cahier de spécifications.
 
+##### Diagrammes de séquences
+
+To be continued...
+
 #### Serveur DCC et service plaque tournante
 
 Voici le protocole qui sera utilisé dans un premier temps par le serveur DCC et la plaque tournante pour communiquer sur un socket TCP.
@@ -375,17 +395,23 @@ Ensuite, pour les commandes :
 
 A l'exception du dernier message, les trois autres messages sont envoyés par le serveur DCC. Le message *Notification de position* est envoyé par le service plaque tournante lors du mouvement de la plaque.
 
-Pour les deux message *Déplacer vers position* et *Notification de position*, la position est envoyée sous forme décimale.
+Pour les deux messages *Déplacer vers position* et *Notification de position*, la position est envoyée sous forme décimale.
 En réalité la valeur sera comprise entre 0 et 19199.
 En effet, le moteur sera un moteur pas à pas de 200 pas, avec un rapport de réduction de 3 (poulie crantée) ainsi que 32 micro-pas par pas (driver de moteur).
 Cela fait 19200 pas de moteur possibles.
 
+# Présentation du matériel
+
+## Système DCC
+
+## Plaque tournante
+
+To be continued...
+
+
 [synoptic]: images/synoptic.png "synoptic" { width:auto; max-width:90% }
-
 [rpi_software]: images/rpi_software.png "rpi_software" { width:auto; max-width:90% }
-
 [classdiagram]: images/classdiagram.png "client_classdiagram" { width:auto; max-width:90% }
 [statemachine]: images/statemachine.png "client_statemachine" { width:auto; max-width:90% }
-
 [statemachine_svc]: images/statemachine_svc.png "svc_statemachine" { width:auto; max-width:90% }
 [classdiagram_svc]: images/classdiagram_svc.png "classdiagram_svc" { width:auto; max-width:90% }
