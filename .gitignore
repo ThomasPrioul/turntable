@@ -37,4 +37,5 @@ Makefile*
 CMakeLists.txt.user
 
 # Visual Paradigm
-*.vpp~*
+*.vpp.bak*
+*.vpp.*
