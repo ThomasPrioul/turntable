@@ -62,7 +62,7 @@ private:
     QString hostName;
     quint16 port;
     QTcpSocket socket;
-    CircularBuffer readBuffer;
+    CircularBuffer<char> readBuffer;
 };
 
 #endif // CLIENTNETWORK_H

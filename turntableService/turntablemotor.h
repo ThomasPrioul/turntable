@@ -1,8 +1,8 @@
 #ifndef TURNTABLEMOTOR_H
 #define TURNTABLEMOTOR_H
 
-#include <QtConcurrent>
 #include <QObject>
+#include <future>
 
 /*!
  * Controls the Turntable's motor.
@@ -11,12 +11,18 @@
 class TurntableMotor : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit TurntableMotor(int32_t numberOfSteps, QObject *parent = 0);
+    explicit TurntableMotor(QObject *parent = 0);
     ~TurntableMotor();
 
+    int32_t pos() const { return currentPos; }
+
+    //! Sets the number of steps for the motor. This calculates the necessary constants used in other functions.
+    void setNbSteps(int32_t numberOfSteps);
+
 signals:
-    //! This event is emitted at the start of a movement, be it 'reset' or 'go to'.
+    //! This event is emitted at the start of a movement request.
     void movementStarted(int32_t position);
 
     //! This event is emitted at repeated intervals during movement, to help clients keep track of the current position.
@@ -25,7 +31,11 @@ signals:
     //! This event is emitted whenever a movement stops on the turntable.
     void movementStopped(int32_t position);
 
-    //void resetDone();
+    //! This event is emitted at the start of a reset.
+    void resetStarted();
+
+    //! This event is emitted at the end of a reset.
+    void resetStopped(bool success);
 
 public slots:
     //! Command handler for 'go to position' message.
@@ -36,10 +46,6 @@ public slots:
 
     //! Command handler for 'stop' message.
     void stop();
-
-private slots:
-    //! Called when a worker thread has terminated.
-    void workerDone();
 
 private:
     // Motor constants
@@ -53,19 +59,14 @@ private:
 
     // Helper methods
 
-    //! Performs one motor step in the required direction. Returns the new position.
+    //! Performs one motor step in the required direction. This method assumes that the motor has already been enabled. Returns the new position.
     int32_t oneStep(bool direction);
 
     //! Calculates the shortest direction for the turntable, given A and B.
     bool shortestDirection(int32_t endPosition);
 
-    /*//! Returns true when the turntable's position is aligned on zero.
-    bool getZeroSensorState();*/
-
-    // Worker methods
-
     //! Task watcher, different from null when a task is running.
-    QFutureWatcher<void> *workerWatcher = Q_NULLPTR;
+    std::future<void> worker;
 
     //! Task cancellation bool
     volatile bool keepRunning;

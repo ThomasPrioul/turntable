@@ -4,29 +4,35 @@
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <vector>
 #include "../turntableClient/circularbuffer.h"
 
 class TurntableNetwork : public QObject
 {
     Q_OBJECT
 public:
-    explicit TurntableNetwork(const QHostAddress& ipAddress, quint16 port, QObject *parent = 0);
+    explicit TurntableNetwork(QObject *parent = 0);
     ~TurntableNetwork();
 
+    bool start(const QHostAddress &ipAddress, quint16 port);
+
 signals:
-    void messageReceived(const QByteArray &message);
+    void messageReceived(const std::vector<char> &message);
     void clientConnected();
     void clientDisconnected();
 
+public slots:
+    void sendMessage(const char *str, size_t len);
+    void sendMessage(const std::ostringstream &ostr);
 private slots:
     void newSocketConnection();
     void socketDisconnected();
     void socketDataAvailable();
 
 private:
-    QTcpServer *tcpServer;
+    QTcpServer tcpServer;
     QTcpSocket *clientSocket;
-    CircularBuffer readBuffer;
+    CircularBuffer<char> readBuffer;
 };
 
 #endif // TURNTABLENETWORK_H

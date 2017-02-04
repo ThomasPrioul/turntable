@@ -4,7 +4,9 @@
 #include <QCoreApplication>
 #include "turntablenetwork.h"
 #include "turntablemotor.h"
+#include "turntabletracks.h"
 
+/*
 enum class ServiceState {
     Init,
     AwaitingClient,
@@ -12,47 +14,54 @@ enum class ServiceState {
     ConnectedIdle,
     ConnectedMoving
 };
+*/
 
-enum CommandLineParseResult
+//! Possible results for Application initialization method
+enum class AppInitResult
 {
-    CommandLineOk,
-    CommandLineError,
-    CommandLineVersionRequested,
-    CommandLineHelpRequested
+    Ok,
+    Error,
+    VersionRequested,
+    HelpRequested
 };
 
+/*!
+    \class TurntableService
+    \brief The TurntableService class represents the core object of the turntable service application.
+
+    This class manages command line argument parsing, as well as initialization and linking between its submodules.
+    For example, the class will capture the motor events to send appropriate network messages.
+*/
 class TurntableService : public QCoreApplication
 {
     Q_OBJECT
 
 public:
-    explicit TurntableService(int& argc, char** argv[]) : QCoreApplication(argc, *argv) {}
+    // Pass argc and argv by reference or a segfault will happen when calling QCoreApplication::arguments() in initialize().
+    explicit TurntableService(int& argc, char** argv[]);
 
     //! Processes all command line arguments and initializes the application.
-    CommandLineParseResult parseCommandLine(QCommandLineParser& parser);
-
-    int initialize(int argc, char *argv[]);
+    AppInitResult initialize();
 
 private slots:
-    // Motor slots
-    void motorMoved(int32_t newPosition);
-    void motorStarted(int32_t startPosition);
-    void motorStopped(int32_t endPosition);
-
-    // Network slots
+    // Network event handlers
     void clientConnected();
     void clientDisconnected();
-    void messageReceived(const QByteArray &message);
+    void messageReceived(const std::vector<char> &rawMessage);
+
+    // Motor event handlers
+    void motorMovementNotification(int32_t newPosition);
+    void motorMovementStarted(int32_t startPosition);
+    void motorMovementStopped(int32_t endPosition);
+    void motorResetStarted();
+    void motorResetStopped(bool success);
 
 private:
-    static constexpr const char* defaultIP = "127.0.0.1";
-    static constexpr quint16 defaultPort = 2017;
-    static constexpr int32_t defaultSteps = 19200;
-
     bool isClientConnected;
-    ServiceState state;
-    TurntableNetwork* network;
-    TurntableMotor* motor;
+    //ServiceState state;
+    TurntableMotor motor;
+    TurntableNetwork network;
+    TurntableTracks tracks;
 };
 
 #endif // TURNTABLESERVICE_H

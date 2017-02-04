@@ -1,24 +1,17 @@
-#include <QDebug>
 #include <QCoreApplication>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 #include "turntablenetwork.h"
 
-TurntableNetwork::TurntableNetwork(const QHostAddress &ipAddress, quint16 port, QObject *parent)
+TurntableNetwork::TurntableNetwork(QObject *parent)
     : QObject(parent)
-    , tcpServer(Q_NULLPTR)
+    , tcpServer(this)
     , clientSocket(Q_NULLPTR)
     , readBuffer(128)
 {
-    tcpServer = new QTcpServer(this);
-    if (!tcpServer->listen(ipAddress, port)) {
-        qCritical() << "Unable to start the server: " << tcpServer->errorString() << ".";
-        QCoreApplication::exit(-1);
-        return;
-    }
-
-    qInfo() << "Turntable service listening on " << ipAddress.toString() << ":" << tcpServer->serverPort();
-
-    connect(tcpServer, &QTcpServer::newConnection, this, &TurntableNetwork::newSocketConnection);
+    connect(&tcpServer, &QTcpServer::newConnection, this, &TurntableNetwork::newSocketConnection);
 }
 
 TurntableNetwork::~TurntableNetwork()
@@ -28,21 +21,45 @@ TurntableNetwork::~TurntableNetwork()
     }
 }
 
+bool TurntableNetwork::start(const QHostAddress &ipAddress, quint16 port)
+{
+    if (!tcpServer.listen(ipAddress, port)) {
+        std::cerr << "Unable to start the server: " << tcpServer.errorString().toStdString() << "." << std::endl;
+        return false;
+    }
+
+    std::cout << "Turntable service listening on " << ipAddress.toString().toStdString() << ":" << tcpServer.serverPort() << std::endl;
+    return true;
+}
+
+void TurntableNetwork::sendMessage(const char* str, size_t len)
+{
+    if (clientSocket != Q_NULLPTR) {
+        clientSocket->write(str, len);
+    }
+}
+
+void TurntableNetwork::sendMessage(const std::ostringstream &ostr)
+{
+    const std::string& str = ostr.str();
+    sendMessage(str.c_str(), str.length());
+}
+
 void TurntableNetwork::newSocketConnection()
 {
-    QTcpSocket* newConnection = tcpServer->nextPendingConnection();
+    QTcpSocket* newConnection = tcpServer.nextPendingConnection();
 
     // Schedule the socket deletion when it is disconnected
     connect(newConnection, &QAbstractSocket::disconnected, newConnection, &QObject::deleteLater);
 
-    qDebug() << "A client is requesting a connection...";
+    std::cout << "A client is requesting a connection..." << std::endl;
 
     // Reject connections when another client is connected
     if (clientSocket != Q_NULLPTR) {
         newConnection->write("Only one client is allowed on the turntable service.\n");
         newConnection->write("Please close the other client before trying to reconnect\n");
         newConnection->disconnectFromHost();
-        qDebug() << "New client rejected";
+        std::cout << "New client rejected" << std::endl;
     }
     else {
 
@@ -51,20 +68,15 @@ void TurntableNetwork::newSocketConnection()
         connect(clientSocket, &QAbstractSocket::disconnected, this, &TurntableNetwork::socketDisconnected);
         connect(clientSocket, &QAbstractSocket::readyRead, this, &TurntableNetwork::socketDataAvailable);
 
-        qInfo() << "New client accepted : "
-                 << clientSocket->peerAddress().toString() << ":" << clientSocket->peerPort();
-
+        std::cout << "New client accepted : " << clientSocket->peerAddress().toString().toStdString() << ":" << clientSocket->peerPort() << std::endl;
         readBuffer.flush();
-
         emit clientConnected();
-
-        //newConnection->write("Hello world!\n");
     }
 }
 
 void TurntableNetwork::socketDisconnected()
 {
-    qDebug() << clientSocket->peerAddress().toString() << ":" << clientSocket->peerPort() << " disconnected";
+    std::cout << clientSocket->peerAddress().toString().toStdString() << ":" << clientSocket->peerPort() << " disconnected" << std::endl;
     clientSocket = Q_NULLPTR;
     readBuffer.flush();
 
@@ -74,20 +86,19 @@ void TurntableNetwork::socketDisconnected()
 void TurntableNetwork::socketDataAvailable()
 {
     quint64 bytesToRead = clientSocket->bytesAvailable();
-    quint64 i = bytesToRead;
-    char readChar;
+    char readChar(0);
 
-    while (i-- > 0) {
+    while (bytesToRead-- > 0) {
         if (clientSocket->getChar(&readChar)) {
-            if (readChar != '\n') {// && readChar != '\r') {
-                readBuffer.putChar(readChar);
+            if (readChar != '\n') {
+                readBuffer.put(readChar);
             }
             else {
                 emit messageReceived(readBuffer.readAll());
             }
         }
-        else  {
-            qDebug() << "Network: Error getting char from socket";
+        else {
+            std::cerr << "Network: Error getting char from socket" << std::endl;
         }
     }
 }

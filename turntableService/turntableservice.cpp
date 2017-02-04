@@ -1,218 +1,133 @@
+#include <sstream>
 #include <iostream>
+#include <string>
 #include <QCommandLineParser>
-
 #include "turntableservice.h"
+#include "networkconfig.h"
 
-CommandLineParseResult TurntableService::parseCommandLine(QCommandLineParser& parser)
+namespace query = NetworkConfig::Query;
+namespace notif = NetworkConfig::Notification;
+
+bool startsWithMsg(const std::string& str, const std::string& msgType)
 {
-    QHostAddress networkAddr(defaultIP);
-    quint16 networkPort = defaultPort;
-    int32_t nbSteps = defaultSteps;
+    constexpr size_t a = 0;
+    size_t b = msgType.length() - 1;
+    return str.compare(a, b, msgType, a, b) == 0;
+}
 
+bool startsWith(const std::string& longStr, const std::string& shortStr)
+{
+    return shortStr.length() <= longStr.length()
+        && std::equal(shortStr.begin(), shortStr.end(), longStr.begin());
+}
+
+TurntableService::TurntableService(int& argc, char** argv[])
+  : QCoreApplication(argc, *argv)
+  , motor(this)
+  , network(this)
+{
+    QCoreApplication::setApplicationName("turntableservice");
+    QCoreApplication::setApplicationVersion("0.1");
+}
+
+AppInitResult TurntableService::initialize()
+{
+    QHostAddress networkAddr(NetworkConfig::defaultIP);
+    quint16 networkPort = NetworkConfig::defaultPort;
+    int32_t nbSteps = NetworkConfig::defaultSteps;
+    QCommandLineParser parser;
     const QCommandLineOption helpOption = parser.addHelpOption();
     const QCommandLineOption versionOption = parser.addVersionOption();
-    const QCommandLineOption ipOption("ip", "The IP address (and therefore the interface) to use.", "ip", QString(defaultIP));
-    const QCommandLineOption portOption("port", "The port to use for TCP communication.", "port", QString::number(defaultPort));
-    const QCommandLineOption stepsOption("steps", "The number of steps for the motor.", "steps", QString::number(defaultSteps));
+    const QCommandLineOption ipOption("ip", "The IP address (and therefore the interface) to use.", "ip", QString(NetworkConfig::defaultIP));
+    const QCommandLineOption portOption("port", "The port to use for TCP communication.", "port", QString::number(NetworkConfig::defaultPort));
+    const QCommandLineOption stepsOption("steps", "The number of steps for the motor.", "steps", QString::number(NetworkConfig::defaultSteps));
 
+    parser.setApplicationDescription(R"(Turntable background service
+Thomas Prioul
+Polytech' Tours - 2017)");
     parser.addOptions({ ipOption, portOption, stepsOption });
 
     if (!parser.parse(QCoreApplication::arguments())) {
-        qCritical() << parser.errorText();
-        return CommandLineError;
+        std::cerr << parser.errorText().toStdString();
+        return AppInitResult::Error;
     }
+
+    // Check args
 
     if (parser.isSet(versionOption)) {
         parser.showVersion();
-        return CommandLineVersionRequested;
+        return AppInitResult::VersionRequested;
     }
+
     if (parser.isSet(helpOption)) {
         parser.showHelp();
-        return CommandLineHelpRequested;
+        return AppInitResult::HelpRequested;
     }
+
     if (parser.isSet(ipOption)) {
         const QString ipArg = parser.value(ipOption);
         if (!networkAddr.setAddress(ipArg)) {
-            qCritical() << "Could not parse given IP address, using " << defaultIP << "as default.";
-            return CommandLineError;
+            std::cerr << "Could not parse given IP address, using " << NetworkConfig::defaultIP << "as default." << std::endl;
+            return AppInitResult::Error;
         }
     }
+
     if (parser.isSet(portOption)) {
         const QString portArg = parser.value(portOption);
         bool parseValid;
         int parsedPort = portArg.toInt(&parseValid);
 
         if (!parseValid) {
-            qCritical() << "Could not parse given port number, using " << defaultPort << " as default.";
-            return CommandLineError;
+            std::cerr << "Could not parse given port number, using " << NetworkConfig::defaultPort << " as default." << std::endl;
+            return AppInitResult::Error;
         }
 
         if (parsedPort < 1024 || parsedPort > UINT16_MAX) {
-            qCritical() << "Given port number is out of bounds (1024 - 65535).";
-            return CommandLineError;
+            std::cerr << "Given port number is out of bounds (1024 - 65535)." << std::endl;
+            return AppInitResult::Error;
         }
 
         networkPort = parsedPort;
     }
+
     if (parser.isSet(stepsOption)) {
         const QString stepsArg = parser.value(stepsOption);
         bool parseValid;
         int parsedSteps = stepsArg.toInt(&parseValid);
 
         if (!parseValid) {
-            qCritical() << "Could not parse given steps amount, using " << defaultSteps << " as default.";
-            return CommandLineError;
+            std::cerr << "Could not parse given steps amount, using " << NetworkConfig::defaultSteps << " as default." << std::endl;
+            return AppInitResult::Error;
         }
 
         if (parsedSteps <= 0) {
-            qCritical() << "Given port number is out of bounds (1024 - 65535).";
-            return CommandLineError;
+            std::cerr << "Given steps number cannot be negative." << std::endl;
+            return AppInitResult::Error;
         }
 
         nbSteps = parsedSteps;
     }
 
-    motor = new TurntableMotor(nbSteps, this);
-    connect(motor, &TurntableMotor::movementNotify, this, &TurntableService::motorMoved);
-    connect(motor, &TurntableMotor::movementStarted, this, &TurntableService::motorStarted);
-    connect(motor, &TurntableMotor::movementStopped, this, &TurntableService::motorStopped);
+    // Init sub-objects
 
-    network = new TurntableNetwork(networkAddr, networkPort, this);
-    connect(network, &TurntableNetwork::messageReceived, this, &TurntableService::messageReceived);
-    connect(network, &TurntableNetwork::clientConnected, this, &TurntableService::clientConnected);
-    connect(network, &TurntableNetwork::clientDisconnected, this, &TurntableService::clientDisconnected);
+    motor.setNbSteps(nbSteps);
+    connect(&motor, &TurntableMotor::movementNotify, this, &TurntableService::motorMovementNotification);
+    connect(&motor, &TurntableMotor::movementStarted, this, &TurntableService::motorMovementStarted);
+    connect(&motor, &TurntableMotor::movementStopped, this, &TurntableService::motorMovementStopped);
+    connect(&motor, &TurntableMotor::resetStarted, this, &TurntableService::motorResetStarted);
+    connect(&motor, &TurntableMotor::resetStopped, this, &TurntableService::motorResetStopped);
 
-    return CommandLineOk;
-}
+    if (!network.start(networkAddr, networkPort))
+        return AppInitResult::Error;
 
-int TurntableService::initialize(int argc, char *argv[]) {
-    QHostAddress networkAddr(defaultIP);
-    quint16 networkPort = defaultPort;
-    int32_t nbSteps = defaultSteps;
+    connect(&network, &TurntableNetwork::messageReceived, this, &TurntableService::messageReceived);
+    connect(&network, &TurntableNetwork::clientConnected, this, &TurntableService::clientConnected);
+    connect(&network, &TurntableNetwork::clientDisconnected, this, &TurntableService::clientDisconnected);
 
-    if (argc > 1) {
-        int i = 1;
+    if (!tracks.loadFile())
+        return AppInitResult::Error;
 
-        // Process command line arguments
-        do {
-            // Display help
-            if (strcasecmp(argv[i], "-h") == 0 ||
-                strcasecmp(argv[i], "--help") == 0) {
-                //displayHelp();
-                return -1;
-            }
-            // Display version
-            else if (strcasecmp(argv[i], "-v") == 0 ||
-                     strcasecmp(argv[i], "--version") == 0) {
-                std::cout << "0.1" << std::endl;
-                return -1;
-            }
-            // Set IP
-            else if (strcasecmp(argv[i], "--ip") == 0) {
-
-                // Check that there is at least another arg to read
-                if ((argc - 1) > i) {
-                    if (networkAddr.setAddress(QString(argv[++i])))
-                        std::cout << "IP Address set as " << argv[i] << std::endl;
-                    else
-                        std::cout << "Could not parse given IP address, \"" << argv[i] << "\", using " << defaultIP << " as default." << std::endl;
-                }
-                else {
-                    std::cout << "IP address argument missing, usage is:" << std::endl <<
-                                 "turntableservice --ip <ip>" << std::endl;
-                }
-            }
-            // Set port
-            else if (strcasecmp(argv[i], "--port") == 0) {
-                // Check that there is at least another arg to read
-                if ((argc - 1) >= i) {
-                    QString portArg(argv[++i]);
-                    bool conversionOk;
-                    int convertedPort = portArg.toInt(&conversionOk);
-
-                    if (conversionOk) {
-                        if (convertedPort > 0 && convertedPort < UINT16_MAX) {
-                            networkPort = convertedPort;
-                            std::cout << "Port set as " << networkPort << std::endl;
-                        }
-                        else {
-                            std::cout << "Given port number \"" << argv[i] << "\" is out of bounds (1024 - 65535)." << std::endl;
-                        }
-                    }
-                    else {
-                        std::cout << "Could not parse given port number, \"" << argv[i] << "\", using port \"2017\" as default." << std::endl;
-                    }
-                }
-                else {
-                    std::cout << "Port rgument missing, usage is:" << std::endl <<
-                                 "turntableservice --port <port>" << std::endl;
-                }
-            }
-            // Set motor steps
-            else if (strcasecmp(argv[i], "--steps") == 0) {
-                // Check that there is at least another arg to read
-                if ((argc - 1) >= i) {
-                    QString stepsArg(argv[++i]);
-                    bool conversionOk;
-                    int convertedSteps = stepsArg.toInt(&conversionOk);
-
-                    if (conversionOk) {
-                        if (convertedSteps > 0) {
-                            nbSteps = convertedSteps;
-                            std::cout << "Steps set as " << nbSteps << std::endl;
-                        }
-                        else {
-                            std::cout << "Can't have 0 steps." << std::endl;
-                        }
-                    }
-                    else {
-                        std::cout << "Could not parse given steps number, \"" << argv[i] << "\", using " << defaultSteps << " as default." << std::endl;
-                    }
-                }
-                else {
-                    std::cout << "Steps argument missing, usage is:" << std::endl <<
-                                 "turntableservice --steps <nbSteps>" << std::endl;
-                }
-            }
-        } while (++i < argc);
-    }
-
-    motor = new TurntableMotor(nbSteps, this);
-    connect(motor, &TurntableMotor::movementNotify, this, &TurntableService::motorMoved);
-    connect(motor, &TurntableMotor::movementStarted, this, &TurntableService::motorStarted);
-    connect(motor, &TurntableMotor::movementStopped, this, &TurntableService::motorStopped);
-
-    network = new TurntableNetwork(networkAddr, networkPort, this);
-    connect(network, &TurntableNetwork::messageReceived, this, &TurntableService::messageReceived);
-    connect(network, &TurntableNetwork::clientConnected, this, &TurntableService::clientConnected);
-    connect(network, &TurntableNetwork::clientDisconnected, this, &TurntableService::clientDisconnected);
-
-    return 0;
-    //motor.resetAsync();
-
-    //connect(&updateTimer, &QTimer::timeout, this, &TurntableService::updateState);
-    //updateTimer->start(1000);
-}
-
-void TurntableService::motorMoved(int32_t newPosition)
-{
-    qDebug() << "Motor pos = " << newPosition;
-}
-
-void TurntableService::motorStarted(int32_t startPosition)
-{
-    qDebug() << "Motor started moving";
-    qDebug() << "Motor pos = " << startPosition;
-}
-
-void TurntableService::motorStopped(int32_t endPosition)
-{
-    qDebug() << "Motor pos = " << endPosition;
-    qDebug() << "Motor stopped moving";
-
-    if (state == ServiceState::Init) {
-        state = ServiceState::AwaitingClient;
-    }
+    return AppInitResult::Ok;
 }
 
 void TurntableService::clientConnected()
@@ -225,37 +140,164 @@ void TurntableService::clientDisconnected()
     isClientConnected = false;
 }
 
-void TurntableService::messageReceived(const QByteArray &message)
+void TurntableService::messageReceived(const std::vector<char> &rawMessage)
 {
-    QString strMsg(message);
+    std::string msg(rawMessage.begin(), rawMessage.end());
 
-    if (strMsg.startsWith("goto ")) {
-        QTextStream reader(&strMsg);
+    if (startsWith(msg, query::move)) {
+        std::istringstream reader(msg);
         int32_t motorNewPosition;
-        reader.seek(5);
-        reader >> motorNewPosition;
-        motor->goToPositionAsync(motorNewPosition);
+
+        if (reader.seekg(query::move.length())) {
+            if (reader >> motorNewPosition) {
+                motor.goToPositionAsync(motorNewPosition);
+            }
+            else {
+                std::cerr << "Failed to read position in message: " << msg << std::endl;
+            }
+        }
+        else {
+            std::cerr << "Could not find target motor position in message: " << msg << std::endl;
+        }
     }
-    else if (strMsg.startsWith("stop")) {
-        motor->stop();
+    else if (startsWith(msg, query::stop)) {
+        motor.stop();
     }
-    else if (strMsg.startsWith("reset")) {
-        motor->resetAsync();
+    else if (startsWith(msg, query::reset)) {
+        motor.resetAsync();
+    }
+    else if (startsWith(msg, query::position)) {
+        if (isClientConnected) {
+            std::ostringstream output;
+            output << notif::position << motor.pos() << '\n';
+            network.sendMessage(output);
+        }
+    }
+    else if (startsWith(msg, query::sendConfig)) {
+        if (isClientConnected) {
+            std::ostringstream output;
+            output << notif::beginSendConfig << '\n';
+            for (auto i : tracks.getTracks()) {
+                output << notif::track << i.first << ';' << i.second << '\n';
+            }
+            output << notif::endSendConfig << '\n';
+            network.sendMessage(output);
+        }
+    }
+    else if (startsWith(msg, query::addTrack)) {
+        std::istringstream reader(msg);
+        std::string track;
+        int32_t position;
+
+        if (reader.seekg(query::addTrack.length())) {
+            if (reader >> track >> position) {
+                tracks.addTrack(track, position);
+
+                if (isClientConnected) {
+                    std::ostringstream output;
+                    output << notif::addTrack << track << ';' << position << '\n';
+                    network.sendMessage(output);
+                }
+            }
+            else {
+                std::cerr << "Could not parse track name or position in message: " << msg << std::endl;
+            }
+        }
+        else {
+            std::cerr << "Could not find arguments in message: " << msg << std::endl;
+        }
+    }
+    else if (startsWith(msg, query::deleteTrack)) {
+        std::istringstream reader(msg);
+        std::string track;
+
+        if (reader.seekg(query::deleteTrack.length())) {
+            if (reader >> track) {
+                tracks.deleteTrack(track);
+
+                if (isClientConnected) {
+                    std::ostringstream output;
+                    output << notif::deleteTrack << track << '\n';
+                    network.sendMessage(output);
+                }
+            }
+            else {
+                std::cerr << "Could not parse track name in message: " << msg << std::endl;
+            }
+        }
+        else {
+            std::cerr << "Could not find arguments in message: " << msg << std::endl;
+        }
     }
 }
 
-//void TurntableService::updateState()
-//{
-//    switch(state) {
-//        case ServiceState::AwaitingClient:
-//            if (isClientConnected) {
-//                state = ServiceState::ConnectedInit;
-//            }
-//            break;
-//        case ServiceState::ConnectedIdle:
-//            if (!isClientConnected) {
-//                state = ServiceState::AwaitingClient;
-//            }
-//            break;
-//    }
-//}
+void TurntableService::motorMovementNotification(int32_t newPosition)
+{
+    if (isClientConnected) {
+        std::ostringstream output;
+        output << notif::position << newPosition << '\n';
+        network.sendMessage(output);
+    }
+    std::cout << "Motor pos = " << newPosition << std::endl;
+}
+
+void TurntableService::motorMovementStarted(int32_t startPosition)
+{
+    if (isClientConnected) {
+        std::ostringstream output;
+        output << notif::moveStarted << '\n' <<
+                  notif::position << startPosition << '\n';
+        network.sendMessage(output);
+    }
+    std::cout << "Motor started moving" << '\n';
+    std::cout << "Motor pos = " << startPosition << '\n';
+}
+
+void TurntableService::motorMovementStopped(int32_t endPosition)
+{
+    if (isClientConnected) {
+        std::ostringstream output;
+        output << notif::position << endPosition << '\n' <<
+                  notif::moveStopped << '\n';
+        network.sendMessage(output);
+    }
+
+    std::cout << "Motor pos = " << endPosition << '\n';
+    std::cout << "Motor stopped moving" << std::endl;
+}
+
+void TurntableService::motorResetStarted()
+{
+    if (isClientConnected) {
+        std::ostringstream output;
+        output << notif::resetStarted << '\n';
+        network.sendMessage(output);
+    }
+}
+
+void TurntableService::motorResetStopped(bool success)
+{
+    if (isClientConnected) {
+        std::ostringstream output;
+        output << notif::resetStopped << (int)success << '\n';
+        network.sendMessage(output);
+    }
+}
+
+/*
+void TurntableService::updateState()
+{
+    switch(state) {
+        case ServiceState::AwaitingClient:
+            if (isClientConnected) {
+                state = ServiceState::ConnectedInit;
+            }
+            break;
+        case ServiceState::ConnectedIdle:
+            if (!isClientConnected) {
+                state = ServiceState::AwaitingClient;
+            }
+            break;
+    }
+}
+*/

@@ -1,21 +1,16 @@
-#include <iostream>
 #include "turntableservice.h"
 
 int main(int argc, char *argv[])
 {
+    qRegisterMetaType<int32_t>("int32_t");
     TurntableService app(argc, &argv);
-    QCoreApplication::setApplicationName("turntableservice");
-    QCoreApplication::setApplicationVersion("0.1");
 
-    QCommandLineParser parser;
-    parser.setApplicationDescription(R"(Turntable background service
-Thomas Prioul
-Polytech' Tours - 2017)");
-
-    if (app.parseCommandLine(parser) == CommandLineError) {
-        return -1;
-    }
+    auto result = app.initialize();
+    if (result == AppInitResult::HelpRequested ||
+        result == AppInitResult::VersionRequested)
+        return EXIT_SUCCESS;
+    else if (result == AppInitResult::Error)
+        return EXIT_FAILURE;
 
     return app.exec();
 }
-
