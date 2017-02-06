@@ -10,6 +10,12 @@ constexpr int notifyThreshold = 64;
 constexpr unsigned long stepWaitTime = 3;
 constexpr bool defaultDirection = true;
 
+template<typename R>
+bool is_ready(std::future<R> const& f)
+{
+    return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+}
+
 inline static void enableMotor()
 {
     std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime});
@@ -68,7 +74,7 @@ void TurntableMotor::setNbSteps(int32_t numberOfSteps)
 
 void TurntableMotor::goToPositionAsync(int32_t endPosition)
 {
-    if (!worker.valid()) {
+    if (!worker.valid() || is_ready(worker)) {
         worker = std::async(std::launch::async, &TurntableMotor::goToPositionWorker, this, endPosition);
     }
     else {
@@ -78,7 +84,7 @@ void TurntableMotor::goToPositionAsync(int32_t endPosition)
 
 void TurntableMotor::resetAsync()
 {   
-    if (!worker.valid()) {
+    if (!worker.valid() || is_ready(worker)) {
         worker = std::async(std::launch::async, &TurntableMotor::resetWorker, this);
     }
     else {
@@ -127,7 +133,6 @@ bool TurntableMotor::shortestDirection(int32_t endPosition)
 
 void TurntableMotor::goToPositionWorker(qint32 endPosition)
 {
-    std::cout << "bonsoir" << std::endl;
     if (endPosition < 0 || endPosition > max_pos)
         return;
 

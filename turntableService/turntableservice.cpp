@@ -1,19 +1,14 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include <signal.h>
+#include <unistd.h>
 #include <QCommandLineParser>
 #include "turntableservice.h"
 #include "networkconfig.h"
 
 namespace query = NetworkConfig::Query;
 namespace notif = NetworkConfig::Notification;
-
-bool startsWithMsg(const std::string& str, const std::string& msgType)
-{
-    constexpr size_t a = 0;
-    size_t b = msgType.length() - 1;
-    return str.compare(a, b, msgType, a, b) == 0;
-}
 
 bool startsWith(const std::string& longStr, const std::string& shortStr)
 {
@@ -27,7 +22,10 @@ TurntableService::TurntableService(int& argc, char** argv[])
   , network(this)
 {
     QCoreApplication::setApplicationName("turntableservice");
+    QCoreApplication::setOrganizationName("Thomas Prioul - Polytech' Tours");
     QCoreApplication::setApplicationVersion("0.1");
+
+    catchUnixSignals({SIGQUIT, SIGINT, SIGTERM, SIGHUP});
 }
 
 AppInitResult TurntableService::initialize()
@@ -281,6 +279,25 @@ void TurntableService::motorResetStopped(bool success)
         std::ostringstream output;
         output << notif::resetStopped << (int)success << '\n';
         network.sendMessage(output);
+    }
+}
+
+// https://gist.github.com/azadkuh/a2ac6869661ebd3f8588
+void TurntableService::catchUnixSignals(const std::vector<int>& quitSignals, const std::vector<int>& ignoreSignals)
+{
+    auto handler = [](int sig) -> void {
+        std::cout << '\n' << "quit the application (user request signal = " << sig << ')' << std::endl;
+        QCoreApplication::quit();
+    };
+
+    // all these signals will be ignored.
+    for (int sig : ignoreSignals)
+        signal(sig, SIG_IGN);
+
+    // each of these signals calls the handler (quits the QCoreApplication).
+    for (int sig : quitSignals) {
+        network.quit();
+        signal(sig, handler);
     }
 }
 

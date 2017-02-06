@@ -16,9 +16,7 @@ TurntableNetwork::TurntableNetwork(QObject *parent)
 
 TurntableNetwork::~TurntableNetwork()
 {
-    if (clientSocket != Q_NULLPTR) {
-        clientSocket->disconnectFromHost();
-    }
+    quit();
 }
 
 bool TurntableNetwork::start(const QHostAddress &ipAddress, quint16 port)

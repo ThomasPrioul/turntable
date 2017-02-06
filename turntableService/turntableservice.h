@@ -62,6 +62,7 @@ private:
     TurntableMotor motor;
     TurntableNetwork network;
     TurntableTracks tracks;
+    void catchUnixSignals(const std::vector<int>& quitSignals, const std::vector<int>& ignoreSignals = std::vector<int>());
 };
 
 #endif // TURNTABLESERVICE_H
