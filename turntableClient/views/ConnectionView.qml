@@ -10,6 +10,8 @@ ColumnLayout {
     transformOrigin: Item.Top
     spacing: 10
     signal connectClicked(string ip, int port);
+    property TextField ipInput : ipTextInput
+
 
     Label {
         text : qsTr("Connect to server")

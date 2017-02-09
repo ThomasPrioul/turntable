@@ -82,6 +82,16 @@ void TurntableMotor::goToPositionAsync(int32_t endPosition)
     }
 }
 
+void TurntableMotor::moveIndefinitelyAsync(bool direction)
+{
+    if (!worker.valid() || is_ready(worker)) {
+        worker = std::async(std::launch::async, &TurntableMotor::moveIndefinitelyWorker, this, direction);
+    }
+    else {
+        std::cout << "A worker is already running!" << std::endl;
+    }
+}
+
 void TurntableMotor::resetAsync()
 {   
     if (!worker.valid() || is_ready(worker)) {
@@ -143,14 +153,40 @@ void TurntableMotor::goToPositionWorker(qint32 endPosition)
     setMotorDirection(direction);
 
     keepRunning = true;
-    uint8_t steps = 0;
+    int32_t steps = 0;
+    int32_t notifySteps = 0;
 
     while (keepRunning && (currentPos != endPosition) && steps < nb_steps) {
         oneStep(direction);
 
-        // Notify every X steps
-        if ((++steps % notifyThreshold) == 0)
+        // Only notify every X steps
+        if (notifySteps++ >= notifyThreshold) {
             emit movementNotify(currentPos);
+            notifySteps = 0;
+        }
+    }
+
+    disableMotor();
+    emit movementStopped(currentPos);
+}
+
+void TurntableMotor::moveIndefinitelyWorker(bool direction)
+{
+    emit movementStarted(currentPos);
+    enableMotor();
+    setMotorDirection(direction);
+    int32_t notifySteps = 0;
+
+    keepRunning = true;
+
+    while (keepRunning) {
+        oneStep(direction);
+
+        // Only notify every X steps
+        if (notifySteps++ >= notifyThreshold) {
+            emit movementNotify(currentPos);
+            notifySteps = 0;
+        }
     }
 
     disableMotor();
@@ -167,12 +203,16 @@ void TurntableMotor::resetWorker()
     setMotorDirection(defaultDirection);
 
     int32_t steps = 0;
+    int32_t notifySteps = 0;
+
     while (!getZeroSensorState() && steps++ < nb_steps) {
         oneStep(defaultDirection);
 
         // Only notify every X steps
-        if ((steps % notifyThreshold) == 0)
+        if (notifySteps++ >= notifyThreshold) {
             emit movementNotify(currentPos);
+            notifySteps = 0;
+        }
     }
 
     // Zero wasn't found

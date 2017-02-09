@@ -144,18 +144,44 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
 
     if (startsWith(msg, query::move)) {
         std::istringstream reader(msg);
-        int32_t motorNewPosition;
 
-        if (reader.seekg(query::move.length())) {
-            if (reader >> motorNewPosition) {
-                motor.goToPositionAsync(motorNewPosition);
+        if (startsWith(msg, query::moveToTrack)) {
+            std::string trackName;
+            int32_t position;
+
+            // Handle move to track
+            if (reader.seekg(query::moveToTrack.length() + 1)) {
+                if (std::getline(reader, trackName) && (position = tracks.getTrackPosition(trackName)) != -1) {
+                    motor.goToPositionAsync(position);
+                }
+                else {
+                    std::cerr << "Failed to read trackname in message: " << msg << std::endl;
+                }
             }
             else {
-                std::cerr << "Failed to read position in message: " << msg << std::endl;
+                std::cerr << "Could not find track name in message: " << msg << std::endl;
+            }
+        }
+        else if (startsWith(msg, query::moveToPosition)) {
+            int32_t position;
+
+            // Handle move to position
+            if (reader.seekg(query::moveToPosition.length())) {
+                if (reader >> position) {
+                    motor.goToPositionAsync(position);
+                }
+                else {
+                    std::cerr << "Failed to read position in message: " << msg << std::endl;
+                }
+            }
+            else {
+                std::cerr << "Could not find target motor position in message: " << msg << std::endl;
             }
         }
         else {
-            std::cerr << "Could not find target motor position in message: " << msg << std::endl;
+            int32_t direction = true;
+            reader >> direction;
+            motor.moveIndefinitelyAsync((bool)direction);
         }
     }
     else if (startsWith(msg, query::stop)) {
@@ -176,24 +202,25 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
             std::ostringstream output;
             output << notif::beginSendConfig << '\n';
             for (auto i : tracks.getTracks()) {
-                output << notif::track << i.first << ';' << i.second << '\n';
+                output << notif::track << '"' << i.first << "\" " << i.second << '\n';
             }
             output << notif::endSendConfig << '\n';
             network.sendMessage(output);
         }
     }
     else if (startsWith(msg, query::addTrack)) {
+        std::string skip; // dummy
         std::istringstream reader(msg);
         std::string track;
         int32_t position;
 
         if (reader.seekg(query::addTrack.length())) {
-            if (reader >> track >> position) {
+            if (std::getline(std::getline(reader, track, '"'), track, '"') >> position) {
                 tracks.addTrack(track, position);
 
                 if (isClientConnected) {
                     std::ostringstream output;
-                    output << notif::addTrack << track << ';' << position << '\n';
+                    output << notif::addTrack << '"' << track << "\" " << position << '\n';
                     network.sendMessage(output);
                 }
             }
@@ -210,12 +237,12 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
         std::string track;
 
         if (reader.seekg(query::deleteTrack.length())) {
-            if (reader >> track) {
+            if (std::getline(std::getline(reader, track, '"'), track, '"')) {
                 tracks.deleteTrack(track);
 
                 if (isClientConnected) {
                     std::ostringstream output;
-                    output << notif::deleteTrack << track << '\n';
+                    output << notif::deleteTrack<< '"' << track << "\"\n";
                     network.sendMessage(output);
                 }
             }

@@ -13,6 +13,8 @@ namespace NetworkConfig  {
         const std::string reset = "RR";
         const std::string stop = "RS";
         const std::string move = "RD";
+        const std::string moveToTrack = "RD track";
+        const std::string moveToPosition = "RD pos";
         const std::string position = "RP";
         const std::string sendConfig = "RC";
         const std::string addTrack = "RV add"; // RV add <trackName> <pos>

@@ -41,6 +41,9 @@ public slots:
     //! Command handler for 'go to position' message.
     void goToPositionAsync(int32_t endPosition);
 
+    //! Command handler for 'move' message.
+    void moveIndefinitelyAsync(bool direction);
+
     //! Command handler for 'find zero' message.
     void resetAsync();
 
@@ -73,6 +76,9 @@ private:
 
     //! Motor 'go to' worker method. This should be used in a separate thread.
     void goToPositionWorker(qint32 endPosition);
+
+    //! Motor 'move' worker method. This should be used in a separate thread.
+    void moveIndefinitelyWorker(bool direction);
 
     //! Motor reset worker method (finding 0 position). This should be used in a separate thread.
     void resetWorker();

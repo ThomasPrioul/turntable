@@ -1,17 +1,17 @@
 #ifndef TURNTABLEAPPLICATION_H
 #define TURNTABLEAPPLICATION_H
 
+#include <string>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <string>
 #include "dccclientnetwork.h"
 #include "controllers/turntablecontroller.h"
 
 class TurntableApplication : public QGuiApplication
 {
     Q_OBJECT
-    Q_PROPERTY(DccClientNetwork* network READ network)
-    Q_PROPERTY(TurntableController* turntable READ turntable)
+    Q_PROPERTY(DccClientNetwork* network READ network NOTIFY networkChanged)
+    Q_PROPERTY(TurntableController* turntable READ turntable NOTIFY turntableChanged)
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
 
 public:
@@ -23,14 +23,17 @@ public:
 
 signals:
     void connectedChanged();
-    void messageReceived(const QString& msg);
+    void networkChanged();
+    void turntableChanged();
+    void messageReceived(const std::string& msg);
+    void messageReceivedQString(const QString& msg);
 
 protected:
     void setConnected(bool value) {
-        if (value != m_connected) {
-            m_connected = value;
-            emit connectedChanged();
-        }
+        if (value == m_connected)
+            return;
+        m_connected = value;
+        emit connectedChanged();
     }
 
 private slots:

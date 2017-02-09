@@ -4,8 +4,6 @@ CONFIG += c++11
 
 SOURCES += main.cpp \
     turntableapplication.cpp \
-    motor.cpp \
-    trackitem.cpp \
     controllers/turntablecontroller.cpp \
     dccclientnetwork.cpp
 
@@ -37,9 +35,9 @@ HEADERS += \
     turntableapplication.h \
     circularbuffer.h \
     ../turntableService/networkconfig.h \
-    motor.h \
-    trackitem.h \
     macros.h \
     controllers/icontroller.h \
     controllers/turntablecontroller.h \
-    dccclientnetwork.h
+    dccclientnetwork.h \
+    models/track.h \
+    models/tracksmodel.h

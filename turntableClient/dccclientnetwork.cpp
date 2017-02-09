@@ -47,6 +47,7 @@ void DccClientNetwork::sendMessage(const std::string& message)
 {
     if (m_connected) {
         m_socket.write(message.c_str(), message.length());
+        emit messageSentQString(QString::fromStdString(message));
     }
 }
 

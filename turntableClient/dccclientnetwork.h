@@ -40,6 +40,7 @@ signals:
     void connected(const QString &hostname, quint16 m_port);
     void disconnected();
     void messageReceived(const std::vector<char> &message);
+    void messageSentQString(const QString& msg);
 
     void hostNameChanged();
     void portChanged();

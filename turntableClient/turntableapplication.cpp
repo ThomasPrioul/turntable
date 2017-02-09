@@ -4,15 +4,10 @@
 #include <QQmlEngine>
 #include "turntableapplication.h"
 #include "../turntableService/networkconfig.h"
+#include "models/tracksmodel.h"
 
 namespace query = NetworkConfig::Query;
 namespace notif = NetworkConfig::Notification;
-
-bool startsWith(const std::string& longStr, const std::string& shortStr)
-{
-    return shortStr.length() <= longStr.length()
-        && std::equal(shortStr.begin(), shortStr.end(), longStr.begin());
-}
 
 TurntableApplication::TurntableApplication(int &argc, char **argv[])
     : QGuiApplication(argc, *argv)
@@ -29,6 +24,11 @@ TurntableApplication::TurntableApplication(int &argc, char **argv[])
     connect(&m_network, &DccClientNetwork::connected,        this, &TurntableApplication::networkConnected);
     connect(&m_network, &DccClientNetwork::disconnected,     this, &TurntableApplication::networkDisconnected);
     connect(&m_network, &DccClientNetwork::messageReceived,  this, &TurntableApplication::networkMessageReceived);
+
+    qmlRegisterType<DccClientNetwork>("turntable.client", 1, 0, "Network");
+    qmlRegisterType<Track>("turntable.client.models", 1, 0, "Track");
+    qmlRegisterType<TracksModel>("turntable.client.models", 1, 0, "TrackData");
+    qmlRegisterType<TurntableController>("turntable.client.controllers", 1, 0, "TurntableController");
 
     // Give network class access to the QML environment
     m_engine.rootContext()->setContextProperty("app", this);
@@ -51,7 +51,8 @@ void TurntableApplication::networkMessageReceived(const std::vector<char> &rawMe
 {
     std::string msg(rawMessage.begin(), rawMessage.end());
     std::cout << "Received : " << msg << std::endl;
-    emit messageReceived(QString::fromStdString(msg));
+    emit messageReceived(msg); // For C++ backend
+    emit messageReceivedQString(QString::fromStdString(msg)); // For QML
 //    if (startsWith(msg, notif::position)) {
 //        std::istringstream reader(msg);
 //        int32_t motorNewPosition;

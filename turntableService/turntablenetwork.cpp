@@ -88,7 +88,7 @@ void TurntableNetwork::socketDataAvailable()
 
     while (bytesToRead-- > 0) {
         if (clientSocket->getChar(&readChar)) {
-            if (readChar != '\n') {
+            if (readChar != '\n' && readChar != '\r') {
                 readBuffer.put(readChar);
             }
             else {

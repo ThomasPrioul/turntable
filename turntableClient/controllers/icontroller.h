@@ -5,7 +5,7 @@
 
 class TurntableApplication; // forward decl
 
-enum class ComponentState {
+enum class ControllerState {
     Init = 0,
     Idle = 1,
     Busy = 2
@@ -22,11 +22,11 @@ public:
     virtual ~IController(){} // do not forget this
 
 public slots:
-    virtual void messageReceived(const QString& msg) = 0;
+    virtual void messageReceived(const std::string& msg) = 0;
 
 protected:
     TurntableApplication* m_app;
-    ComponentState m_state = ComponentState::Init;
+    ControllerState m_state = ControllerState::Init;
     bool m_enabled = false;
 };
 
