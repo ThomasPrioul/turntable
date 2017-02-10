@@ -34,7 +34,10 @@ Item {
             Label {
                 id: connectedLabel
                 text: qsTr("You're connected to the server. Explore the tabs to use the features.")
-
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                font.pointSize: 12
+                font.bold: true
             }
 
             Pane {
@@ -50,10 +53,12 @@ Item {
                         padding: 12
                         Layout.fillWidth: true
                         Material.elevation : 0
+
                         Label {
                             text: qsTr("Network log")
                             Layout.fillWidth: true
-                            anchors.bottomMargin: 10
+                            font.pointSize: 12
+                            font.bold: true
                         }
                     }
 
