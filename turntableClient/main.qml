@@ -7,12 +7,12 @@ import "views"
 
 ApplicationWindow {
     id: window
-    height: 480
+    //height: 480
+    //width: 800
     visible: true
-    width: 800
     //Material.theme: Material.Dark
-    Material.primary: Material.BlueGrey
-    Material.accent: Material.Grey
+    Material.primary: Material.Blue
+    Material.accent: Material.LightBlue
 
     function getHeight() {
         return window.height - window.header.implicitHeight;

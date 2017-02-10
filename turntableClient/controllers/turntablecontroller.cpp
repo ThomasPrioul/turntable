@@ -86,9 +86,8 @@ void TurntableController::messageReceived(const std::string &msg)
 
     // [2] Receive state information
     else if (startsWith(msg, notif::resetStarted)) {
-        setResetting(true);
         setControllerState(ControllerState::Busy);
-
+        setResetting(true);
     }
     else if (startsWith(msg, notif::resetStopped)) {
         std::stringstream reader(msg);

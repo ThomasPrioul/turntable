@@ -2,6 +2,9 @@ QT += qml quick
 
 CONFIG += c++11
 
+TARGET = turntableClient
+
+
 SOURCES += main.cpp \
     turntableapplication.cpp \
     controllers/turntablecontroller.cpp \
@@ -41,3 +44,14 @@ HEADERS += \
     dccclientnetwork.h \
     models/track.h \
     models/tracksmodel.h
+
+linux-rasp-pi2-g++ {
+    target.files    = turntableservice
+    target.path     = /home/pi
+}
+
+!linux-rasp-pi2-g++ {
+    #INCLUDEPATH += test
+}
+
+INSTALLS = target

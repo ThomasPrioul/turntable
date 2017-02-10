@@ -28,27 +28,68 @@ Item {
                 ColumnLayout {
                     anchors.fill: parent
 
+                    // Header
                     ToolBar {
-                        padding: 12
+                        padding: 0
                         Layout.fillWidth: true
                         Material.elevation : 0
 
-                        Label {
-                            text: qsTr("Turntable state")
+                        RowLayout {
                             anchors.fill: parent
-                            font.pointSize: 12
-                            font.bold: true
+                            spacing: 0
+
+                            Label {
+                                text: qsTr("Turntable state")
+                                padding: 12
+                                Layout.fillHeight: true
+                                Layout.fillWidth: true
+                                font.pointSize: 12
+                                font.bold: true
+                            }
+
+                            BusyIndicator {
+                                id: resetIndicator
+                                Layout.preferredHeight: 40
+                                Layout.preferredWidth: 40
+                                padding: 6
+                                visible: app.turntable.busy
+                            }
                         }
                     }
 
                     Pane {
+                        id: turntableStatePane
                         Layout.fillWidth: true
                         Layout.fillHeight: true
 
                         // Here goes turntable rotating object
-                        BusyIndicator {
-                            id: resetIndicator
+                        ColumnLayout {
+                            visible: !app.turntable.resetting
+                            anchors.fill: parent
+                        }
+
+                        ColumnLayout {
+                            id: resetPane
+                            anchors.right: parent.right
+                            anchors.rightMargin: 0
+                            anchors.left: parent.left
+                            anchors.leftMargin: 0
+                            anchors.verticalCenter: parent.verticalCenter
                             visible: app.turntable.resetting
+
+                            Label {
+                                text: qsTr("Resetting turntable...")
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+
+                            ProgressBar {
+                                id: progressBar
+                                Layout.fillWidth: true
+                                indeterminate: true
+                            }
                         }
                     }
 
