@@ -62,9 +62,10 @@ public slots:
         }
 
         if (existingItem != nullptr) {
-            _list.removeAll(existingItem);
-            emit listChanged();
+            _list.removeAll(existingItem);           
         }
+
+        emit listChanged();
     }
 
     void clear()

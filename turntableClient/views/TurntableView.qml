@@ -2,11 +2,13 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Extras 1.4
+import QtQuick.Dialogs 1.2
 import QtQuick.Controls.Material 2.0
 import QtQuick.Controls.Universal 2.0
 import turntable.client.models 1.0
 
 Item {
+    id : turntableViewRoot
     GridLayout {
         anchors.fill: parent
         anchors.margins: 10
@@ -62,10 +64,41 @@ Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
 
-                        // Here goes turntable rotating object
                         ColumnLayout {
-                            visible: !app.turntable.resetting
+                            id: turntableViewerLayout
+                            visible: !app.turntable.resetting && app.turntable.nbSteps !== -1
                             anchors.fill: parent
+
+                            Image {
+                                id: turntableImage
+                                source: "qrc:/images/track.png"
+                                fillMode: Image.PreserveAspectFit
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                rotation: app.turntable.nbSteps === -1 ? 0 : app.turntable.position / app.turntable.nbSteps * -360.0 // Angle interpreted as clockwise so need reverse
+
+                                //Behavior on rotation { RotationAnimation { duration: 50; } }
+                            }
+
+                            Label {
+                                text: app.turntable.nbSteps === -1 ? "unknown" : app.turntable.position / app.turntable.nbSteps * 360.0 + "°"
+                                Layout.fillWidth: true
+                            }
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                Button {
+                                    text: "left"
+                                    onPressed: app.turntable.startIndefiniteMove(true)
+                                    onReleased: app.turntable.stop()
+                                }
+
+                                Button {
+                                    text: "right"
+                                    onPressed: app.turntable.startIndefiniteMove(false)
+                                    onReleased: app.turntable.stop()
+                                }
+                            }
                         }
 
                         ColumnLayout {
@@ -161,7 +194,7 @@ Item {
                             anchors.fill: parent
                             snapMode: ListView.SnapToItem
                             boundsBehavior: Flickable.StopAtBounds
-                            spacing: 10
+                            spacing: 50
                             model: app.turntable.tracksData.list
                             delegate: TrackItemDelegate { }
                         }
@@ -185,7 +218,8 @@ Item {
                             Button {
                                 text: qsTr("Add track")
                                 onClicked: {
-                                    app.turntable.tracksData.addTrack(qsTr("New track"), 0);
+                                    addTrackPopup.open();
+                                    //app.turntable.tracksData.addTrack(qsTr("New track"), 0);
                                 }
                             }
 
@@ -199,99 +233,80 @@ Item {
             }
         }
     }
-}
 
-/*
-Grid {
-    columns: 2
-    rows: 1
-    id: rowLayout
-    spacing: 10
-    anchors.margins: 20
-    anchors.fill: parent
-
-    Item {
-        id: turntableBox
-        width: parent.width / parent.columns
-        height: parent.height / parent.rows
+    Popup {
+        id: addTrackPopup
+        x: Math.max(0, window.width/2 - addTrackPopup.implicitWidth)
+        y: Math.max(0, window.getHeight()/2 - addTrackPopup.implicitHeight/2)
+        width: 2*implicitWidth
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         ColumnLayout {
             anchors.fill: parent
-
             Label {
-                text: qsTr("Turntable")
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                text: qsTr("Create/edit a track")
+                font.pointSize: 12
                 font.bold: true
-                font.pointSize: 16
+                Layout.fillWidth: true
             }
 
-            Image {
-                Layout.fillHeight: true
+            TextField {
+                id: newTrackNameField
+                placeholderText: qsTr("Name of the track")
                 Layout.fillWidth: true
-                fillMode: Image.PreserveAspectFit
-                source: "qrc:/images/track.png"
             }
 
-            ToolBar {
-                id: turntableCommands
+            TextField {
+                id: newTrackPositionField
+                placeholderText: qsTr("Position of the track")
                 Layout.fillWidth: true
+                validator: IntValidator { bottom: 0; top: (app.turntable.nbSteps - 1) }
+            }
 
-                RowLayout {
-                    anchors.fill: parent
-                    spacing: 20
-
-                    ToolButton {
-                        contentItem: Text {
-                            text: "◀️"
-                            font.pointSize: 16
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignHCenter
-                            anchors.fill: parent
-                        }
-                    }
-
-                    Label {
-                        id: turntableAngle
-                        text: "102°"
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                        font.pointSize: 16
-                    }
-
-                    ToolButton {
-                        contentItem: Text {
-                            text: "▶️"
-                            font.pointSize: 16
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignHCenter
-                            anchors.fill: parent
-                        }
-                    }
+            Button {
+                id: newTrackValidateButton
+                text: qsTr("OK")
+                Layout.alignment: Qt.AlignRight
+                enabled: newTrackNameField.acceptableInput && newTrackPositionField.acceptableInput
+                onClicked: {
+                    app.turntable.addServiceTrack(newTrackNameField.text, newTrackPositionField.text);
+                    addTrackPopup.close();
                 }
             }
         }
     }
 
-    Item {
-        id: tracksBox
-        width: parent.width / parent.columns
-        height: parent.height / parent.rows
+    Popup {
+        id: resetFailedPopup
+        x: Math.max(0, window.width/2 - resetFailedPopup.implicitWidth)
+        y: Math.max(0, window.getHeight()/2 - resetFailedPopup.implicitHeight/2)
+        width: implicitWidth * 2
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         ColumnLayout {
             anchors.fill: parent
-
-            RowLayout {
-                Label {
-                    text: qsTr("Tracks")
-                    font.bold: true
-                    font.pointSize: 16
-                }
+            Label {
+                text: qsTr("Reset failed")
+                font.pointSize: 12
+                font.bold: true
+                Layout.fillWidth: true
             }
 
+            Label { text: qsTr("Could not detect the position 0 indicator."); Layout.fillWidth: true; }
+            Button { text: qsTr("OK"); onClicked: resetFailedPopup.close(); Layout.alignment: Qt.AlignRight; }
+        }
 
+    }
+
+    Connections {
+        target: app.turntable
+        onResetDone : {
+            if (!success)
+               resetFailedPopup.open();
         }
     }
 }
-*/

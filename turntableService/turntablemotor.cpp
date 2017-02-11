@@ -181,9 +181,10 @@ void TurntableMotor::moveIndefinitelyWorker(bool direction)
 
     while (keepRunning) {
         oneStep(direction);
+        std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime * 16});
 
         // Only notify every X steps
-        if (notifySteps++ >= notifyThreshold) {
+        if (notifySteps++ >= notifyThreshold / 8) {
             emit movementNotify(currentPos);
             notifySteps = 0;
         }

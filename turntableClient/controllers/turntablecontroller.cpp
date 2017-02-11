@@ -30,10 +30,10 @@ void TurntableController::messageReceived(const std::string &msg)
         // Clear tracklist when beginSend notification is received
         m_tracks.clear();
     }
-    else if (startsWith(msg, notif::track)) {
+    else if (startsWith(msg, notif::trackDefinition)) {
         std::stringstream reader(msg);
 
-        if (reader.seekg(notif::track.length())) {
+        if (reader.seekg(notif::trackDefinition.length())) {
             std::string track;
             int position;
 
@@ -81,7 +81,14 @@ void TurntableController::messageReceived(const std::string &msg)
     else if (startsWith(msg, notif::endSendConfig)) {
         setControllerState(ControllerState::Idle);
     }
+    else if (startsWith(msg, notif::nbSteps)) {
+        std::stringstream reader(msg);
+        int tmpSteps;
 
+        if (reader.seekg(notif::nbSteps.length()) && reader >> tmpSteps) {
+            setSteps(tmpSteps);
+        }
+    }
     // [1] Receive config info
 
     // [2] Receive state information
@@ -101,6 +108,24 @@ void TurntableController::messageReceived(const std::string &msg)
             }
         }
     }
+    else if (startsWith(msg, notif::moveStarted)) {
+        setControllerState(ControllerState::Busy);
+        m_moving = true;
+    }
+    else if (startsWith(msg, notif::moveStopped)) {
+        setControllerState(ControllerState::Idle);
+        m_moving = false;
+    }
+    else if (startsWith(msg, notif::position)) {
+        std::stringstream reader(msg);
+        int result;
+
+        if (reader.seekg(notif::position.length())) {
+            if (reader >> result) {
+                setPosition(result);
+            }
+        }
+    }
 }
 
 void TurntableController::reset()
@@ -110,11 +135,27 @@ void TurntableController::reset()
     m_app->network()->sendMessage(output.str());
 }
 
-void TurntableController::move(int position)
+void TurntableController::startIndefiniteMove(bool direction)
+{
+    std::ostringstream output;
+    output << query::move << ' ' << (int)direction << '\n';
+    m_app->network()->sendMessage(output.str());
+}
+
+void TurntableController::moveToPosition(int position)
 {
     std::ostringstream output;
     output << query::moveToPosition << ' ' << position << '\n';
     m_app->network()->sendMessage(output.str());
+}
+
+void TurntableController::moveToTrack(Track *track)
+{
+    if (track != nullptr) {
+        std::ostringstream output;
+        output << query::moveToTrack << " \"" << track->name().toStdString() << "\"\n";
+        m_app->network()->sendMessage(output.str());
+    }
 }
 
 void TurntableController::stop()
@@ -127,5 +168,21 @@ void TurntableController::getConfig()
 {
     std::ostringstream output;
     output << query::sendConfig << '\n';
+    output << query::nbSteps << '\n';
+    output << query::position << '\n';
+    m_app->network()->sendMessage(output.str());
+}
+
+void TurntableController::addServiceTrack(const QString &name, int pos)
+{
+    std::ostringstream output;
+    output << query::addTrack << " \"" << name.toStdString() << "\" " << pos << '\n';
+    m_app->network()->sendMessage(output.str());
+}
+
+void TurntableController::removeServiceTrack(const QString &name)
+{
+    std::ostringstream output;
+    output << query::deleteTrack << " \"" << name.toStdString() << "\"\n";
     m_app->network()->sendMessage(output.str());
 }

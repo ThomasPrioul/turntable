@@ -151,7 +151,7 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
 
             // Handle move to track
             if (reader.seekg(query::moveToTrack.length() + 1)) {
-                if (std::getline(reader, trackName) && (position = tracks.getTrackPosition(trackName)) != -1) {
+                if (std::getline(std::getline(reader, trackName, '"'), trackName, '"') && (position = tracks.getTrackPosition(trackName)) != -1) {
                     motor.goToPositionAsync(position);
                 }
                 else {
@@ -180,6 +180,7 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
         }
         else {
             int32_t direction = true;
+            reader.seekg(query::move.length());
             reader >> direction;
             motor.moveIndefinitelyAsync((bool)direction);
         }
@@ -202,14 +203,20 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
             std::ostringstream output;
             output << notif::beginSendConfig << '\n';
             for (auto i : tracks.getTracks()) {
-                output << notif::track << '"' << i.first << "\" " << i.second << '\n';
+                output << notif::trackDefinition << '"' << i.first << "\" " << i.second << '\n';
             }
             output << notif::endSendConfig << '\n';
             network.sendMessage(output);
         }
     }
+    else if (startsWith(msg, query::nbSteps)) {
+        if (isClientConnected) {
+            std::ostringstream output;
+            output << notif::nbSteps << ' ' << motor.steps() << '\n';
+            network.sendMessage(output);
+        }
+    }
     else if (startsWith(msg, query::addTrack)) {
-        std::string skip; // dummy
         std::istringstream reader(msg);
         std::string track;
         int32_t position;

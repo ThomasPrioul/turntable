@@ -19,6 +19,7 @@ class TurntableController : public QObject, IController
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
     Q_PROPERTY(bool resetting READ resetting NOTIFY resettingChanged)
     Q_PROPERTY(int position READ position NOTIFY positionChanged)
+    Q_PROPERTY(int nbSteps READ nbSteps NOTIFY stepsChanged)
     Q_INTERFACES(IController)
 
 public:
@@ -27,6 +28,7 @@ public:
     bool busy() { return m_state == ControllerState::Busy; }
     bool resetting() const { return m_resetting; }
     int position() const { return m_position; }
+    int nbSteps() const { return m_nbsteps; }
 
 signals:
     void tracksDataChanged();
@@ -34,13 +36,18 @@ signals:
     void positionChanged();
     void resettingChanged();
     void resetDone(bool success);
+    void stepsChanged();
 
 public slots:
     void messageReceived(const std::string& msg);
     void reset();
-    void move(int position);
+    void startIndefiniteMove(bool direction);
+    void moveToPosition(int position);
+    void moveToTrack(Track* track);
     void stop();
     void getConfig();
+    void addServiceTrack(const QString& name, int pos);
+    void removeServiceTrack(const QString& name);
 
 private:
     //GetConfigState m_getCfgState = GetConfigState::NotAwaiting;
@@ -62,11 +69,17 @@ private:
         m_position = value;
         positionChanged();
     }
+    void setSteps(int value) {
+        if (m_nbsteps == value)
+            return;
+        m_nbsteps = value;
+        stepsChanged();
+    }
 
-    bool m_moving;
-    bool m_resetting;
-    int m_position = -1;
-
+    bool        m_moving;
+    bool        m_resetting;
+    int         m_position = -1;
+    int         m_nbsteps = -1;
     TracksModel m_tracks;
 };
 

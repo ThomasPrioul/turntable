@@ -7,8 +7,8 @@ import "views"
 
 ApplicationWindow {
     id: window
-    //height: 480
-    //width: 800
+    height: 480
+    width: 800
     visible: true
     //Material.theme: Material.Dark
     Material.primary: Material.Blue
@@ -75,6 +75,7 @@ ApplicationWindow {
 
                     MenuItem {
                         text :qsTr("About")
+                        enabled: false
                     }
 
                     MenuItem {

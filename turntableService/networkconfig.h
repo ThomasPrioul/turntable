@@ -17,6 +17,7 @@ namespace NetworkConfig  {
         const std::string moveToPosition = "RD pos";
         const std::string position = "RP";
         const std::string sendConfig = "RC";
+        const std::string nbSteps = "RI steps";
         const std::string addTrack = "RV add"; // RV add <trackName> <pos>
         const std::string deleteTrack = "RV del"; // RV del <trackName>
     }
@@ -29,7 +30,8 @@ namespace NetworkConfig  {
         const std::string position = "SP ";
         const std::string beginSendConfig = "SC begin";
         const std::string endSendConfig = "SC end";
-        const std::string track = "SV ";
+        const std::string nbSteps = "SI steps";
+        const std::string trackDefinition = "SV ";
         const std::string addTrack = "SV add ";
         const std::string deleteTrack = "SV del ";
     }

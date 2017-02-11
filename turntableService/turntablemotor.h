@@ -17,6 +17,7 @@ public:
     ~TurntableMotor();
 
     int32_t pos() const { return currentPos; }
+    int32_t steps() const { return nb_steps; }
 
     //! Sets the number of steps for the motor. This calculates the necessary constants used in other functions.
     void setNbSteps(int32_t numberOfSteps);
