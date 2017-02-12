@@ -27,9 +27,7 @@ HEADERS += \
     turntabletracks.h
 
 linux-rasp-pi2-g++ {
-    message($$QMAKESPEC)
-    INCLUDEPATH += /home/thomas/raspi/sysroot/usr/include
-    LIBS += -L/home/thomas/raspi/sysroot/usr/lib -lwiringPi -lpthread -pthread
+    LIBS += -lwiringPi
     target.path     = /home/pi
 }
 
