@@ -30,23 +30,6 @@ void TurntableController::messageReceived(const std::string &msg)
         // Clear tracklist when beginSend notification is received
         m_tracks.clear();
     }
-    else if (startsWith(msg, notif::trackDefinition)) {
-        std::stringstream reader(msg);
-
-        if (reader.seekg(notif::trackDefinition.length())) {
-            std::string track;
-            int position;
-
-            // Read quoted string
-            if (std::getline(std::getline(reader, track, '"'), track, '"')  >> position) {
-                // The method will discard duplicated or update the position
-                m_tracks.addTrack(QString::fromStdString(track), position);
-            }
-        }
-        else {
-            std::cerr << "" << std::endl;
-        }
-    }
     else if (startsWith(msg, notif::addTrack)) {
         std::stringstream reader(msg);
 
@@ -78,6 +61,23 @@ void TurntableController::messageReceived(const std::string &msg)
             std::cerr << "" << std::endl;
         }
     }
+    else if (startsWith(msg, notif::trackDefinition)) {
+        std::stringstream reader(msg);
+
+        if (reader.seekg(notif::trackDefinition.length())) {
+            std::string track;
+            int position;
+
+            // Read quoted string
+            if (std::getline(std::getline(reader, track, '"'), track, '"')  >> position) {
+                // The method will discard duplicated or update the position
+                m_tracks.addTrack(QString::fromStdString(track), position);
+            }
+        }
+        else {
+            std::cerr << "" << std::endl;
+        }
+    }
     else if (startsWith(msg, notif::endSendConfig)) {
         setControllerState(ControllerState::Idle);
     }
@@ -103,6 +103,11 @@ void TurntableController::messageReceived(const std::string &msg)
         if (reader.seekg(notif::resetStopped.length())) {
             if (reader >> result) {
                 emit resetDone((bool)result);
+
+                if (result) {
+                    setPosition(0);
+                }
+
                 setResetting(false);
                 setControllerState(ControllerState::Idle);
             }

@@ -29,6 +29,13 @@ public:
     bool resetting() const { return m_resetting; }
     int position() const { return m_position; }
     int nbSteps() const { return m_nbsteps; }
+    void resetController() {
+        m_moving = false;
+        setResetting(false);
+        setPosition(-1);
+        setSteps(-1);
+        m_tracks.clear();
+    }
 
 signals:
     void tracksDataChanged();

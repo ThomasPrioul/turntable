@@ -38,12 +38,15 @@ TurntableApplication::TurntableApplication(int &argc, char **argv[])
 void TurntableApplication::networkConnected(const QString &hostname, quint16 port)
 {
     setConnected(true);
+    m_turntable.resetController();
+    m_turntable.getConfig();
     std::cout << "connected" << std::endl;
 }
 
 void TurntableApplication::networkDisconnected()
 {
     setConnected(false);
+    m_turntable.resetController();
     std::cout << "disconnected" << std::endl;
 }
 

@@ -81,7 +81,7 @@ Item {
                             }
 
                             Label {
-                                text: app.turntable.nbSteps === -1 ? "unknown" : app.turntable.position / app.turntable.nbSteps * 360.0 + "°"
+                                text: app.turntable.nbSteps === -1 ? "unknown" : app.turntable.position / app.turntable.nbSteps * 360.0 + "° (" + app.turntable.position + ")"
                                 Layout.fillWidth: true
                             }
 
@@ -137,13 +137,13 @@ Item {
                     Pane {
                         topPadding: 3
                         padding: 6
-                        Layout.fillWidth: true
-                        enabled: !app.turntable.busy
+                        Layout.fillWidth: true                     
 
                         RowLayout {
                             Button {
                                 text: qsTr("Reset")
                                 onClicked: app.turntable.reset();
+                                enabled: !app.turntable.busy
                             }
 
                             Button {
@@ -151,6 +151,7 @@ Item {
                                 onClicked: {
                                     app.turntable.stop();
                                 }
+                                enabled: app.turntable.busy && !app.turntable.resetting
                             }
                         }
                     }
