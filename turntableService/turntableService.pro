@@ -30,7 +30,6 @@ linux-rasp-pi2-g++ {
     message($$QMAKESPEC)
     INCLUDEPATH += /home/thomas/raspi/sysroot/usr/include
     LIBS += -L/home/thomas/raspi/sysroot/usr/lib -lwiringPi -lpthread -pthread
-    target.files    = turntableservice
     target.path     = /home/pi
 }
 
