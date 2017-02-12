@@ -27,7 +27,9 @@ HEADERS += \
     turntabletracks.h
 
 linux-rasp-pi2-g++ {
+    QT += concurrent
     LIBS += -lwiringPi
+    DEFINES += RPI_FIX
     target.path     = /home/pi
 }
 

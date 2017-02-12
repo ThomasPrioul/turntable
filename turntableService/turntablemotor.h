@@ -2,7 +2,12 @@
 #define TURNTABLEMOTOR_H
 
 #include <QObject>
-#include <future>
+
+#ifdef RPI_FIX
+    #include <QFutureWatcher>
+#else
+    #include <future>
+#endif
 
 /*!
  * Controls the Turntable's motor.
@@ -70,8 +75,12 @@ private:
     bool shortestDirection(int32_t endPosition);
 
     //! Task watcher, different from null when a task is running.
-    std::future<void> worker;
 
+#ifdef RPI_FIX
+    QFutureWatcher<void> worker;
+#else
+    std::future<void> worker;
+#endif
     //! Task cancellation bool
     volatile bool keepRunning;
 

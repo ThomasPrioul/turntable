@@ -1,5 +1,8 @@
 #include <wiringPi.h>
 #include <iostream>
+#include <QtConcurrent>
+#include <chrono>
+#include <thread>
 #include "turntablemotor.h"
 
 constexpr int pin_enable =  13;
@@ -10,11 +13,13 @@ constexpr int notifyThreshold = 64;
 constexpr unsigned long stepWaitTime = 3;
 constexpr bool defaultDirection = true;
 
+#ifndef RPI_FIX
 template<typename R>
 bool is_ready(std::future<R> const& f)
 {
     return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
+#endif
 
 inline static void enableMotor()
 {
@@ -74,8 +79,13 @@ void TurntableMotor::setNbSteps(int32_t numberOfSteps)
 
 void TurntableMotor::goToPositionAsync(int32_t endPosition)
 {
+#ifdef RPI_FIX
+    if (worker.isFinished()) {
+        worker.setFuture(QtConcurrent::run(this, &TurntableMotor::goToPositionWorker, endPosition));
+#else
     if (!worker.valid() || is_ready(worker)) {
         worker = std::async(std::launch::async, &TurntableMotor::goToPositionWorker, this, endPosition);
+#endif
     }
     else {
         std::cout << "A worker is already running!" << std::endl;
@@ -84,8 +94,13 @@ void TurntableMotor::goToPositionAsync(int32_t endPosition)
 
 void TurntableMotor::moveIndefinitelyAsync(bool direction)
 {
+#ifdef RPI_FIX
+    if (worker.isFinished()) {
+        worker.setFuture(QtConcurrent::run(this, &TurntableMotor::moveIndefinitelyWorker, direction));
+#else
     if (!worker.valid() || is_ready(worker)) {
         worker = std::async(std::launch::async, &TurntableMotor::moveIndefinitelyWorker, this, direction);
+#endif
     }
     else {
         std::cout << "A worker is already running!" << std::endl;
@@ -94,8 +109,14 @@ void TurntableMotor::moveIndefinitelyAsync(bool direction)
 
 void TurntableMotor::resetAsync()
 {   
+#ifdef RPI_FIX
+    if (worker.isFinished()) {
+        worker.setFuture(QtConcurrent::run(this, &TurntableMotor::resetWorker));
+        //&this->MyObject, &MyClass::LongFunction
+#else
     if (!worker.valid() || is_ready(worker)) {
         worker = std::async(std::launch::async, &TurntableMotor::resetWorker, this);
+#endif
     }
     else {
         std::cout << "A worker is already running!" << std::endl;
@@ -104,7 +125,11 @@ void TurntableMotor::resetAsync()
 
 void TurntableMotor::stop()
 {
-    if (worker.valid()) {
+#ifdef RPI_FIX
+    if (!worker.isFinished()) {
+#else
+     if (worker.valid()) {
+#endif
         keepRunning = false;
         //worker.get();
     }
