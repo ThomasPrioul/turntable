@@ -1,19 +1,14 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include <signal.h>
+#include <unistd.h>
 #include <QCommandLineParser>
 #include "turntableservice.h"
 #include "networkconfig.h"
 
 namespace query = NetworkConfig::Query;
 namespace notif = NetworkConfig::Notification;
-
-bool startsWithMsg(const std::string& str, const std::string& msgType)
-{
-    constexpr size_t a = 0;
-    size_t b = msgType.length() - 1;
-    return str.compare(a, b, msgType, a, b) == 0;
-}
 
 bool startsWith(const std::string& longStr, const std::string& shortStr)
 {
@@ -27,7 +22,10 @@ TurntableService::TurntableService(int& argc, char** argv[])
   , network(this)
 {
     QCoreApplication::setApplicationName("turntableservice");
+    QCoreApplication::setOrganizationName("Thomas Prioul - Polytech' Tours");
     QCoreApplication::setApplicationVersion("0.1");
+
+    catchUnixSignals({SIGQUIT, SIGINT, SIGTERM, SIGHUP});
 }
 
 AppInitResult TurntableService::initialize()
@@ -146,18 +144,45 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
 
     if (startsWith(msg, query::move)) {
         std::istringstream reader(msg);
-        int32_t motorNewPosition;
 
-        if (reader.seekg(query::move.length())) {
-            if (reader >> motorNewPosition) {
-                motor.goToPositionAsync(motorNewPosition);
+        if (startsWith(msg, query::moveToTrack)) {
+            std::string trackName;
+            int32_t position;
+
+            // Handle move to track
+            if (reader.seekg(query::moveToTrack.length() + 1)) {
+                if (std::getline(std::getline(reader, trackName, '"'), trackName, '"') && (position = tracks.getTrackPosition(trackName)) != -1) {
+                    motor.goToPositionAsync(position);
+                }
+                else {
+                    std::cerr << "Failed to read trackname in message: " << msg << std::endl;
+                }
             }
             else {
-                std::cerr << "Failed to read position in message: " << msg << std::endl;
+                std::cerr << "Could not find track name in message: " << msg << std::endl;
+            }
+        }
+        else if (startsWith(msg, query::moveToPosition)) {
+            int32_t position;
+
+            // Handle move to position
+            if (reader.seekg(query::moveToPosition.length())) {
+                if (reader >> position) {
+                    motor.goToPositionAsync(position);
+                }
+                else {
+                    std::cerr << "Failed to read position in message: " << msg << std::endl;
+                }
+            }
+            else {
+                std::cerr << "Could not find target motor position in message: " << msg << std::endl;
             }
         }
         else {
-            std::cerr << "Could not find target motor position in message: " << msg << std::endl;
+            int32_t direction = true;
+            reader.seekg(query::move.length());
+            reader >> direction;
+            motor.moveIndefinitelyAsync((bool)direction);
         }
     }
     else if (startsWith(msg, query::stop)) {
@@ -178,9 +203,16 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
             std::ostringstream output;
             output << notif::beginSendConfig << '\n';
             for (auto i : tracks.getTracks()) {
-                output << notif::track << i.first << ';' << i.second << '\n';
+                output << notif::trackDefinition << '"' << i.first << "\" " << i.second << '\n';
             }
             output << notif::endSendConfig << '\n';
+            network.sendMessage(output);
+        }
+    }
+    else if (startsWith(msg, query::nbSteps)) {
+        if (isClientConnected) {
+            std::ostringstream output;
+            output << notif::nbSteps << ' ' << motor.steps() << '\n';
             network.sendMessage(output);
         }
     }
@@ -190,12 +222,12 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
         int32_t position;
 
         if (reader.seekg(query::addTrack.length())) {
-            if (reader >> track >> position) {
+            if (std::getline(std::getline(reader, track, '"'), track, '"') >> position) {
                 tracks.addTrack(track, position);
 
                 if (isClientConnected) {
                     std::ostringstream output;
-                    output << notif::addTrack << track << ';' << position << '\n';
+                    output << notif::addTrack << '"' << track << "\" " << position << '\n';
                     network.sendMessage(output);
                 }
             }
@@ -212,12 +244,12 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
         std::string track;
 
         if (reader.seekg(query::deleteTrack.length())) {
-            if (reader >> track) {
+            if (std::getline(std::getline(reader, track, '"'), track, '"')) {
                 tracks.deleteTrack(track);
 
                 if (isClientConnected) {
                     std::ostringstream output;
-                    output << notif::deleteTrack << track << '\n';
+                    output << notif::deleteTrack<< '"' << track << "\"\n";
                     network.sendMessage(output);
                 }
             }
@@ -281,6 +313,25 @@ void TurntableService::motorResetStopped(bool success)
         std::ostringstream output;
         output << notif::resetStopped << (int)success << '\n';
         network.sendMessage(output);
+    }
+}
+
+// https://gist.github.com/azadkuh/a2ac6869661ebd3f8588
+void TurntableService::catchUnixSignals(const std::vector<int>& quitSignals, const std::vector<int>& ignoreSignals)
+{
+    auto handler = [](int sig) -> void {
+        std::cout << '\n' << "quit the application (user request signal = " << sig << ')' << std::endl;
+        QCoreApplication::quit();
+    };
+
+    // all these signals will be ignored.
+    for (int sig : ignoreSignals)
+        signal(sig, SIG_IGN);
+
+    // each of these signals calls the handler (quits the QCoreApplication).
+    for (int sig : quitSignals) {
+        network.quit();
+        signal(sig, handler);
     }
 }
 

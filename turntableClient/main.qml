@@ -1,63 +1,130 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
+import QtQuick.Layouts 1.3
+import QtQuick.Controls.Material 2.0
+import QtQuick.Controls.Universal 2.0
+import "views"
 
 ApplicationWindow {
-    visible: true
-    width: 640
+    id: window
     height: 480
-    title: qsTr("Hello World")
+    width: 800
+    visible: true
+    //Material.theme: Material.Dark
+    Material.primary: Material.Blue
+    Material.accent: Material.LightBlue
 
-    SwipeView {
-        id: swipeView
-        anchors.fill: parent
-        currentIndex: tabBar.currentIndex
+    function getHeight() {
+        return window.height - window.header.implicitHeight;
+    }
 
-        Page {
+    Component.onCompleted: {
+        window.title = app.applicationDisplayName;
+    }
 
-            Connections {
-                  target: network
-                  onMessageReceived: console.log("Received : " + message.toString());
-              }
+    header: ToolBar {
+        id: header
+        Material.foreground: "white"
 
-            RowLayout {
-                TextInput {
-                    id: hostnameTextInput
-                    text: "192.168.32.1"
+        RowLayout {
+            spacing: 20
+            anchors.fill: parent
+
+            TabBar {
+                id: bar
+                background: Rectangle {
+                    color: Material.primary
                 }
-                TextInput {
-                    id: portTextInput
-                    text: "2002"
-                }
+                Material.foreground: "#FFE0E0E0"
+                Material.accent: "white"
+                Layout.fillWidth: true
 
-                Button {
-                    text: qsTr("connect")
-                    onClicked: network.connectToHost(hostnameTextInput.text, portTextInput.text)
+                TabButton {
+                    text: qsTr("Home")
                 }
-
-                Button {
-                    text: qsTr("disconnect")
-                    onClicked: network.disconnectFromHost()
+                TabButton {
+                    text: qsTr("Turntable")
                 }
             }
-        }
 
-        Page {
-            Label {
-                text: qsTr("Second page")
-                anchors.centerIn: parent
+            ToolButton {
+                contentItem: Image {
+                    fillMode: Image.Pad
+                    horizontalAlignment: Image.AlignHCenter
+                    verticalAlignment: Image.AlignVCenter
+                    source: "qrc:/images/menu.png"
+                }
+                onClicked: optionsMenu.open()
+
+                Menu {
+                    id: optionsMenu
+                    x: parent.width - width
+                    transformOrigin: Menu.TopRight
+
+                    MenuItem {
+                        text: app.connected ? qsTr("Disconnect") : qsTr("Connect")
+                        onTriggered: {
+                            if (app.connected)
+                                app.network.disconnectFromHost();
+                            else {
+                                connectionPopup.open();
+                                connectionView.ipInput.forceActiveFocus();
+                            }
+                        }
+                    }
+
+                    MenuItem {
+                        text :qsTr("About")
+                        enabled: false
+                    }
+
+                    MenuItem {
+                        text: qsTr("Exit")
+                        onTriggered: {
+                            app.network.disconnectFromHost();
+                            Qt.quit();
+                        }
+                    }
+                }
             }
         }
     }
 
-    footer: TabBar {
-        id: tabBar
-        currentIndex: swipeView.currentIndex
-        TabButton {
-            text: qsTr("First")
+    StackLayout {
+        currentIndex: bar.currentIndex
+        anchors.fill: parent
+
+        HomeView {
+            id: homeView
         }
-        TabButton {
-            text: qsTr("Second")
+
+        TurntableView {
+            id: turntableView
+            enabled: app.connected
+        }
+    }
+
+    Popup {
+        id: connectionPopup
+        x: Math.max(0, window.width/2 - connectionPopup.implicitWidth)
+        y: Math.max(0, window.getHeight()/2 - connectionPopup.implicitHeight/2)
+        width: 2*implicitWidth
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        ConnectionView {
+            id: connectionView
+            anchors.fill: parent
+            onConnectClicked: app.network.connectToHost(ip, port)
+        }
+
+        Connections {
+            target: app
+            onConnectedChanged: {
+                if (app.connected && connectionPopup.visible)
+                    connectionPopup.close();
+            }
         }
     }
 }

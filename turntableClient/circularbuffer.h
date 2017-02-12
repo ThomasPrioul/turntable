@@ -14,7 +14,16 @@ template <typename T>
 class CircularBuffer
 {
 public:
-    CircularBuffer(std::size_t size) : buffer(size), bufferSize(size), readPos(0), writePos(0), bytesToRead(0) {}
+    CircularBuffer(std::size_t size)
+        : bufferSize(size)
+        , readPos(0)
+        , writePos(0)
+        , bytesToRead(0)
+    {
+        buffer = new T[size];
+    }
+
+    ~CircularBuffer() { delete[] buffer; }
 
     size_t bytesAvailable() const { return bytesToRead; }
     bool empty() const { return bytesToRead == 0; }
@@ -78,7 +87,7 @@ public:
     size_t size() const { return bufferSize; }
 
 private:
-    std::vector<T> buffer;
+    T* buffer;
     size_t bufferSize;
     size_t readPos;
     size_t writePos;

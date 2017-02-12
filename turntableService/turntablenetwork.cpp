@@ -16,9 +16,7 @@ TurntableNetwork::TurntableNetwork(QObject *parent)
 
 TurntableNetwork::~TurntableNetwork()
 {
-    if (clientSocket != Q_NULLPTR) {
-        clientSocket->disconnectFromHost();
-    }
+    quit();
 }
 
 bool TurntableNetwork::start(const QHostAddress &ipAddress, quint16 port)
@@ -90,7 +88,7 @@ void TurntableNetwork::socketDataAvailable()
 
     while (bytesToRead-- > 0) {
         if (clientSocket->getChar(&readChar)) {
-            if (readChar != '\n') {
+            if (readChar != '\n' && readChar != '\r') {
                 readBuffer.put(readChar);
             }
             else {

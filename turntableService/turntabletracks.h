@@ -13,6 +13,7 @@ public:
     void addTrack(const std::string& key, int32_t value)
     {
         if (value >= 0) {
+            deleteTrack(key);
             tracks.insert({key, value});
             saveFile();
         }

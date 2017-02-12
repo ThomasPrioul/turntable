@@ -10,6 +10,12 @@ constexpr int notifyThreshold = 64;
 constexpr unsigned long stepWaitTime = 3;
 constexpr bool defaultDirection = true;
 
+template<typename R>
+bool is_ready(std::future<R> const& f)
+{
+    return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+}
+
 inline static void enableMotor()
 {
     std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime});
@@ -68,8 +74,18 @@ void TurntableMotor::setNbSteps(int32_t numberOfSteps)
 
 void TurntableMotor::goToPositionAsync(int32_t endPosition)
 {
-    if (!worker.valid()) {
+    if (!worker.valid() || is_ready(worker)) {
         worker = std::async(std::launch::async, &TurntableMotor::goToPositionWorker, this, endPosition);
+    }
+    else {
+        std::cout << "A worker is already running!" << std::endl;
+    }
+}
+
+void TurntableMotor::moveIndefinitelyAsync(bool direction)
+{
+    if (!worker.valid() || is_ready(worker)) {
+        worker = std::async(std::launch::async, &TurntableMotor::moveIndefinitelyWorker, this, direction);
     }
     else {
         std::cout << "A worker is already running!" << std::endl;
@@ -78,7 +94,7 @@ void TurntableMotor::goToPositionAsync(int32_t endPosition)
 
 void TurntableMotor::resetAsync()
 {   
-    if (!worker.valid()) {
+    if (!worker.valid() || is_ready(worker)) {
         worker = std::async(std::launch::async, &TurntableMotor::resetWorker, this);
     }
     else {
@@ -127,7 +143,6 @@ bool TurntableMotor::shortestDirection(int32_t endPosition)
 
 void TurntableMotor::goToPositionWorker(qint32 endPosition)
 {
-    std::cout << "bonsoir" << std::endl;
     if (endPosition < 0 || endPosition > max_pos)
         return;
 
@@ -138,14 +153,41 @@ void TurntableMotor::goToPositionWorker(qint32 endPosition)
     setMotorDirection(direction);
 
     keepRunning = true;
-    uint8_t steps = 0;
+    int32_t steps = 0;
+    int32_t notifySteps = 0;
 
     while (keepRunning && (currentPos != endPosition) && steps < nb_steps) {
         oneStep(direction);
 
-        // Notify every X steps
-        if ((++steps % notifyThreshold) == 0)
+        // Only notify every X steps
+        if (notifySteps++ >= notifyThreshold) {
             emit movementNotify(currentPos);
+            notifySteps = 0;
+        }
+    }
+
+    disableMotor();
+    emit movementStopped(currentPos);
+}
+
+void TurntableMotor::moveIndefinitelyWorker(bool direction)
+{
+    emit movementStarted(currentPos);
+    enableMotor();
+    setMotorDirection(direction);
+    int32_t notifySteps = 0;
+
+    keepRunning = true;
+
+    while (keepRunning) {
+        oneStep(direction);
+        std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime * 16});
+
+        // Only notify every X steps
+        if (notifySteps++ >= notifyThreshold / 8) {
+            emit movementNotify(currentPos);
+            notifySteps = 0;
+        }
     }
 
     disableMotor();
@@ -162,12 +204,16 @@ void TurntableMotor::resetWorker()
     setMotorDirection(defaultDirection);
 
     int32_t steps = 0;
+    int32_t notifySteps = 0;
+
     while (!getZeroSensorState() && steps++ < nb_steps) {
         oneStep(defaultDirection);
 
         // Only notify every X steps
-        if ((steps % notifyThreshold) == 0)
+        if (notifySteps++ >= notifyThreshold) {
             emit movementNotify(currentPos);
+            notifySteps = 0;
+        }
     }
 
     // Zero wasn't found

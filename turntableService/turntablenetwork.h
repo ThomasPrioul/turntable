@@ -15,6 +15,12 @@ public:
     ~TurntableNetwork();
 
     bool start(const QHostAddress &ipAddress, quint16 port);
+    void quit()
+    {
+        if (clientSocket != Q_NULLPTR) {
+            clientSocket->disconnectFromHost();
+        }
+    }
 
 signals:
     void messageReceived(const std::vector<char> &message);
