@@ -69,35 +69,26 @@ Item {
                             visible: !app.turntable.resetting && app.turntable.nbSteps !== -1
                             anchors.fill: parent
 
-                            Image {
-                                id: turntableImage
-                                source: "qrc:/images/track.png"
-                                fillMode: Image.PreserveAspectFit
-                                Layout.fillWidth: true
+                            Item {
+                                id: turntableImageContainer
                                 Layout.fillHeight: true
-                                rotation: app.turntable.nbSteps === -1 ? 0 : app.turntable.position / app.turntable.nbSteps * -360.0 // Angle interpreted as clockwise so need reverse
+                                Layout.fillWidth: true
 
-                                //Behavior on rotation { RotationAnimation { duration: 50; } }
+                                Image {
+                                    id: turntableImage
+                                    anchors.centerIn: parent
+                                    width: parent.height <= parent.width ? parent.height : parent.width
+                                    source: "qrc:/images/track.png"
+                                    fillMode: Image.PreserveAspectFit
+                                    rotation: app.turntable.nbSteps === -1 ? 0 : app.turntable.position / app.turntable.nbSteps * -360.0 // Angle interpreted as clockwise so need reverse
+
+                                    //Behavior on rotation { RotationAnimation { duration: 50; } }
+                                }
                             }
 
                             Label {
                                 text: app.turntable.nbSteps === -1 ? "unknown" : app.turntable.position / app.turntable.nbSteps * 360.0 + "° (" + app.turntable.position + ")"
                                 Layout.fillWidth: true
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Button {
-                                    text: "left"
-                                    onPressed: app.turntable.startIndefiniteMove(true)
-                                    onReleased: app.turntable.stop()
-                                }
-
-                                Button {
-                                    text: "right"
-                                    onPressed: app.turntable.startIndefiniteMove(false)
-                                    onReleased: app.turntable.stop()
-                                }
                             }
                         }
 
@@ -140,6 +131,18 @@ Item {
                         Layout.fillWidth: true                     
 
                         RowLayout {
+                            Button {
+                                text: qsTr("Left")
+                                onPressed: app.turntable.startIndefiniteMove(true)
+                                onReleased: app.turntable.stop()
+                            }
+
+                            Button {
+                                text: qsTr("Right")
+                                onPressed: app.turntable.startIndefiniteMove(false)
+                                onReleased: app.turntable.stop()
+                            }
+
                             Button {
                                 text: qsTr("Reset")
                                 onClicked: app.turntable.reset();
