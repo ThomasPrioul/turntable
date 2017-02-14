@@ -1,9 +1,12 @@
 #include <wiringPi.h>
 #include <iostream>
-#include <QtConcurrent>
 #include <chrono>
 #include <thread>
 #include "turntablemotor.h"
+
+#ifdef RPI_FIX
+#include <QtConcurrent>
+#endif
 
 constexpr int pin_enable =  13;
 constexpr int pin_step = 26;
