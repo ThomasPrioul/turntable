@@ -8,7 +8,9 @@ TARGET = turntableClient
 SOURCES += main.cpp \
     turntableapplication.cpp \
     controllers/turntablecontroller.cpp \
-    dccclientnetwork.cpp
+    dccclientnetwork.cpp \
+    controllers/depotcontroller.cpp \
+    macros.cpp
 
 RESOURCES += qml.qrc
 
@@ -44,7 +46,8 @@ HEADERS += \
     dccclientnetwork.h \
     models/track.h \
     models/tracksmodel.h \
-    clientsettings.h
+    clientsettings.h \
+    controllers/depotcontroller.h
 
 linux-rasp-pi2-g++ {
     target.files    = turntableservice
