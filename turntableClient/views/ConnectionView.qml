@@ -11,10 +11,10 @@ ColumnLayout {
     spacing: 10
     signal connectClicked(string ip, int port);
     property TextField ipInput : ipTextInput
-
+    property TextField portInput : portTextInput
 
     Label {
-        text : qsTr("Connect to server")
+        text : qsTr("Connect to DCC server")
         font.pixelSize: 16
     }
 

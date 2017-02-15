@@ -43,7 +43,8 @@ HEADERS += \
     controllers/turntablecontroller.h \
     dccclientnetwork.h \
     models/track.h \
-    models/tracksmodel.h
+    models/tracksmodel.h \
+    clientsettings.h
 
 linux-rasp-pi2-g++ {
     target.files    = turntableservice

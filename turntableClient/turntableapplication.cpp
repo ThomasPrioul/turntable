@@ -13,10 +13,10 @@ TurntableApplication::TurntableApplication(int &argc, char **argv[])
     : QGuiApplication(argc, *argv)
     , m_engine()
     , m_network(this)
+    , m_settings(this)
     , m_turntable(this, this)
 
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setApplicationName("Client plaque tournante");
     QCoreApplication::setOrganizationName("Thomas Prioul");
     QCoreApplication::setApplicationVersion("0.1");
@@ -25,12 +25,16 @@ TurntableApplication::TurntableApplication(int &argc, char **argv[])
     connect(&m_network, &DccClientNetwork::disconnected,     this, &TurntableApplication::networkDisconnected);
     connect(&m_network, &DccClientNetwork::messageReceived,  this, &TurntableApplication::networkMessageReceived);
 
+    // Qml registeration : prevents errors and gives autocomplete
     qmlRegisterType<DccClientNetwork>("turntable.client", 1, 0, "Network");
+    //qmlRegisterType<ClientSettings>("turntable.client", 1, 0, "AppSettings");
     qmlRegisterType<Track>("turntable.client.models", 1, 0, "Track");
     qmlRegisterType<TracksModel>("turntable.client.models", 1, 0, "TrackData");
     qmlRegisterType<TurntableController>("turntable.client.controllers", 1, 0, "TurntableController");
 
-    // Give network class access to the QML environment
+    m_settings.load();
+
+    // Give access of the application class instance to the QML environment.
     m_engine.rootContext()->setContextProperty("app", this);
     m_engine.load(QUrl(QString("qrc:/main.qml")));
 }

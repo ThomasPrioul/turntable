@@ -117,6 +117,17 @@ ApplicationWindow {
             id: connectionView
             anchors.fill: parent
             onConnectClicked: app.network.connectToHost(ip, port)
+            onVisibleChanged: {
+                if (connectionView.visible) {
+                    connectionView.ipInput.text = app.settings.serverIP;
+                    connectionView.portInput.text = app.settings.serverPort;
+                }
+                else if (app.connected) {
+                    app.settings.serverIP = connectionView.ipInput.text;
+                    app.settings.serverPort = parseInt(connectionView.portInput.text);
+                    app.settings.save();
+                }
+            }
         }
 
         Connections {
