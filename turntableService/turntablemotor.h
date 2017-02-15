@@ -2,6 +2,7 @@
 #define TURNTABLEMOTOR_H
 
 #include <QObject>
+#include <chrono>
 
 #ifdef RPI_FIX
     #include <QFutureWatcher>
@@ -69,7 +70,7 @@ private:
     // Helper methods
 
     //! Performs one motor step in the required direction. This method assumes that the motor has already been enabled. Returns the new position.
-    int32_t oneStep(bool direction);
+    int32_t oneStep(bool direction, std::chrono::microseconds sleepTime);
 
     //! Calculates the shortest direction for the turntable, given A and B.
     bool shortestDirection(int32_t endPosition);

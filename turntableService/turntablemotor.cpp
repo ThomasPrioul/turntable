@@ -2,6 +2,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <cmath>
 #include "turntablemotor.h"
 
 #ifdef RPI_FIX
@@ -13,7 +14,10 @@ constexpr int pin_step = 26;
 constexpr int pin_dir = 19;
 constexpr int pin_zeroSensor = 21;
 constexpr int notifyThreshold = 64;
-constexpr unsigned long stepWaitTime = 3;
+constexpr int accurateNotifyThreshold = notifyThreshold/8;
+constexpr int64_t stepWaitTime = 3;
+constexpr int64_t normalWaitTime = 16000;
+constexpr int64_t fastWaitTime = 1000;
 constexpr bool defaultDirection = true;
 
 #ifndef RPI_FIX
@@ -26,29 +30,67 @@ bool is_ready(std::future<R> const& f)
 
 inline static void enableMotor()
 {
-    std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime});
+    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
     digitalWrite(pin_enable, 0);
-    std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime});
+    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
 }
 
 inline static void disableMotor()
 {
-    std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime});
+    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
     digitalWrite(pin_enable, 1);
-    std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime});
+    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
 }
 
 inline static void setMotorDirection(bool dir)
 {
-    std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime});
+    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
     digitalWrite(pin_dir, (int)dir);
-    std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime});
+    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
 }
 
 inline static bool getZeroSensorState()
 {
     return !((bool)digitalRead(pin_zeroSensor));
 }
+
+static int64_t computeSmoothDelay(int32_t current, int32_t start, int32_t end, int64_t baseTime) {
+    // Calculate percentage of journey
+
+    constexpr float beginRamp = 0.3;
+    constexpr float endRamp = 0.7;
+    constexpr float slowDownFactor = 5.0;
+
+    float percentage = 1.0 - (std::fabs((current - start)) / std::fabs(end - start));
+    float out = baseTime;
+
+    if (percentage > endRamp) {
+        out += ((percentage - endRamp) * slowDownFactor * baseTime);
+    }
+    else if (percentage < beginRamp) {
+        out += ((beginRamp - percentage) * slowDownFactor * baseTime);
+    }
+
+    return out;
+}
+
+//static int64_t fastComputeSmoothDelay(int32_t currentStepsDone,
+//                                      const int32_t twentyPercent,
+//                                      const int32_t heightyPercent,
+//                                      const int32_t hundredPercent,
+//                                      const int64_t baseTime) {
+//    int64_t out = baseTime;
+
+//    if (currentStepsDone > heightyPercent) {
+//        out += (currentStepsDone - heightyPercent)/hundredPercent * baseTime;
+//    }
+
+//    else if (currentStepsDone < twentyPercent) {
+//        out += (twentyPercent - currentStepsDone)/hundredPercent * baseTime;
+//    }
+
+//    return out;
+//}
 
 TurntableMotor::TurntableMotor(QObject *parent) : QObject(parent)
 {
@@ -138,7 +180,7 @@ void TurntableMotor::stop()
     }
 }
 
-int32_t TurntableMotor::oneStep(bool direction)
+int32_t TurntableMotor::oneStep(bool direction, std::chrono::microseconds sleepTime)
 {
     if (direction && ++currentPos >= nb_steps) {
         currentPos = 0;
@@ -149,12 +191,12 @@ int32_t TurntableMotor::oneStep(bool direction)
     digitalWrite(pin_step, 1);
 
     // Wait time
-    std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime});
+    std::this_thread::sleep_for(sleepTime);
 
     digitalWrite(pin_step, 0);
 
     // Wait time
-    std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime});
+    std::this_thread::sleep_for(sleepTime);
 
     return currentPos;
 }
@@ -174,7 +216,8 @@ void TurntableMotor::goToPositionWorker(qint32 endPosition)
     if (endPosition < 0 || endPosition > max_pos)
         return;
 
-    emit movementStarted(currentPos);
+    int32_t startPos = currentPos;
+    emit movementStarted(startPos);
     enableMotor();
 
     bool direction = shortestDirection(endPosition);
@@ -185,10 +228,13 @@ void TurntableMotor::goToPositionWorker(qint32 endPosition)
     int32_t notifySteps = 0;
 
     while (keepRunning && (currentPos != endPosition) && steps < nb_steps) {
-        oneStep(direction);
+
+        // Slow down at start and end
+        //oneStep(direction, std::chrono::microseconds { fastComputeSmoothDelay()})
+        oneStep(direction, std::chrono::microseconds {computeSmoothDelay(currentPos, startPos, endPosition, fastWaitTime)});
 
         // Only notify every X steps
-        if (notifySteps++ >= notifyThreshold) {
+        if (++notifySteps >= notifyThreshold) {
             emit movementNotify(currentPos);
             notifySteps = 0;
         }
@@ -208,11 +254,11 @@ void TurntableMotor::moveIndefinitelyWorker(bool direction)
     keepRunning = true;
 
     while (keepRunning) {
-        oneStep(direction);
-        std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime * 16});
+        oneStep(direction, std::chrono::microseconds{normalWaitTime});
+        //std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime * 16});
 
         // Only notify every X steps
-        if (notifySteps++ >= notifyThreshold / 8) {
+        if (++notifySteps >= accurateNotifyThreshold) {
             emit movementNotify(currentPos);
             notifySteps = 0;
         }
@@ -232,16 +278,16 @@ void TurntableMotor::resetWorker()
     setMotorDirection(defaultDirection);
 
     int32_t steps = 0;
-    int32_t notifySteps = 0;
+    //int32_t notifySteps = 0;
 
     while (!getZeroSensorState() && steps++ < nb_steps) {
-        oneStep(defaultDirection);
+        oneStep(defaultDirection, std::chrono::microseconds{fastWaitTime});
 
-        // Only notify every X steps
-        if (notifySteps++ >= notifyThreshold) {
-            emit movementNotify(currentPos);
-            notifySteps = 0;
-        }
+//        // Only notify every X steps
+//        if (++notifySteps >= notifyThreshold) {
+//            emit movementNotify(currentPos);
+//            notifySteps = 0;
+//        }
     }
 
     // Zero wasn't found
