@@ -9,6 +9,7 @@ import turntable.client.models 1.0
 
 Item {
     id : turntableViewRoot
+
     GridLayout {
         anchors.fill: parent
         anchors.margins: 10

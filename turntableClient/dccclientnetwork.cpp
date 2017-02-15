@@ -78,7 +78,7 @@ void DccClientNetwork::socketDataAvailable()
 
     while (bytesToRead-- > 0) {
         if (m_socket.getChar(&readChar)) {
-            if (readChar != '\n') {
+            if (readChar != '\n' && readChar != '\r') {
                 m_readBuffer.put(readChar);
             }
             else {

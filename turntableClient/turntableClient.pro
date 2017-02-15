@@ -10,7 +10,8 @@ SOURCES += main.cpp \
     controllers/turntablecontroller.cpp \
     dccclientnetwork.cpp \
     controllers/depotcontroller.cpp \
-    macros.cpp
+    macros.cpp \
+    clientsettings.cpp
 
 RESOURCES += qml.qrc
 

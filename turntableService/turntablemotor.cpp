@@ -16,7 +16,7 @@ constexpr int pin_zeroSensor = 21;
 constexpr int notifyThreshold = 64;
 constexpr int accurateNotifyThreshold = notifyThreshold/8;
 constexpr int64_t stepWaitTime = 3;
-constexpr int64_t normalWaitTime = 16000;
+constexpr int64_t normalWaitTime = 4000;
 constexpr int64_t fastWaitTime = 1000;
 constexpr bool defaultDirection = true;
 
@@ -39,13 +39,6 @@ inline static void disableMotor()
 {
     std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
     digitalWrite(pin_enable, 1);
-    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
-}
-
-inline static void setMotorDirection(bool dir)
-{
-    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
-    digitalWrite(pin_dir, (int)dir);
     std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
 }
 
@@ -301,4 +294,11 @@ void TurntableMotor::resetWorker()
 
     disableMotor();
     emit resetStopped(success);
+}
+
+void TurntableMotor::setMotorDirection(bool dir)
+{
+    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
+    digitalWrite(pin_dir, (int) (reverseDir? dir : !dir));
+    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
 }

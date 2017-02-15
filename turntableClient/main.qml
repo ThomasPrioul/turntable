@@ -10,9 +10,6 @@ ApplicationWindow {
     height: 480
     width: 800
     visible: true
-    //Material.theme: Material.Dark
-    Material.primary: Material.Blue
-    Material.accent: Material.LightBlue
 
     function getHeight() {
         return window.height - window.header.implicitHeight;
@@ -116,7 +113,9 @@ ApplicationWindow {
         ConnectionView {
             id: connectionView
             anchors.fill: parent
-            onConnectClicked: app.network.connectToHost(ip, port)
+            onConnectClicked: {
+                app.network.connectToHost(ip, port);
+            }
             onVisibleChanged: {
                 if (connectionView.visible) {
                     connectionView.ipInput.text = app.settings.serverIP;

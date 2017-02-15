@@ -27,6 +27,7 @@ public:
 
     //! Sets the number of steps for the motor. This calculates the necessary constants used in other functions.
     void setNbSteps(int32_t numberOfSteps);
+    void setReverse(bool reverse) { reverseDir = reverse; }
 
 signals:
     //! This event is emitted at the start of a movement request.
@@ -64,6 +65,8 @@ private:
     int32_t half_steps;// = nb_steps / 2;
     int32_t minus_half_steps;// = -1 * half_steps;
 
+    bool reverseDir;
+
     //! Current motor step
     int32_t currentPos = 0;
 
@@ -93,6 +96,8 @@ private:
 
     //! Motor reset worker method (finding 0 position). This should be used in a separate thread.
     void resetWorker();
+
+    void setMotorDirection(bool dir);
 };
 
 #endif // TURNTABLEMOTOR_H

@@ -33,17 +33,20 @@ AppInitResult TurntableService::initialize()
     QHostAddress networkAddr(NetworkConfig::defaultIP);
     quint16 networkPort = NetworkConfig::defaultPort;
     int32_t nbSteps = NetworkConfig::defaultSteps;
+    bool motorReverse = false;
+
     QCommandLineParser parser;
     const QCommandLineOption helpOption = parser.addHelpOption();
     const QCommandLineOption versionOption = parser.addVersionOption();
     const QCommandLineOption ipOption("ip", "The IP address (and therefore the interface) to use.", "ip", QString(NetworkConfig::defaultIP));
     const QCommandLineOption portOption("port", "The port to use for TCP communication.", "port", QString::number(NetworkConfig::defaultPort));
     const QCommandLineOption stepsOption("steps", "The number of steps for the motor.", "steps", QString::number(NetworkConfig::defaultSteps));
+    const QCommandLineOption reverseOption("reverse", "Invert the motor's direction.");
 
     parser.setApplicationDescription(R"(Turntable background service
 Thomas Prioul
 Polytech' Tours - 2017)");
-    parser.addOptions({ ipOption, portOption, stepsOption });
+    parser.addOptions({ ipOption, portOption, stepsOption, reverseOption });
 
     if (!parser.parse(QCoreApplication::arguments())) {
         std::cerr << parser.errorText().toStdString();
@@ -106,9 +109,14 @@ Polytech' Tours - 2017)");
         nbSteps = parsedSteps;
     }
 
+    if (parser.isSet(reverseOption)) {
+        motorReverse = true;
+    }
+
     // Init sub-objects
 
     motor.setNbSteps(nbSteps);
+    motor.setReverse(motorReverse);
     connect(&motor, &TurntableMotor::movementNotify, this, &TurntableService::motorMovementNotification);
     connect(&motor, &TurntableMotor::movementStarted, this, &TurntableService::motorMovementStarted);
     connect(&motor, &TurntableMotor::movementStopped, this, &TurntableService::motorMovementStopped);
@@ -141,6 +149,8 @@ void TurntableService::clientDisconnected()
 void TurntableService::messageReceived(const std::vector<char> &rawMessage)
 {
     std::string msg(rawMessage.begin(), rawMessage.end());
+
+    std::cout << "Recu: " << msg << std::endl;
 
     if (startsWith(msg, query::move)) {
         std::istringstream reader(msg);

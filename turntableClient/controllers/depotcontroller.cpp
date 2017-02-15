@@ -9,7 +9,7 @@ DepotController::DepotController(TurntableApplication *appRef, QObject *parent)
             this,   &DepotController::messageReceived);
 }
 
-void DepotController::messageReceived(const std::__cxx11::string &msg)
+void DepotController::messageReceived(const std::string &msg)
 {
 
 }
