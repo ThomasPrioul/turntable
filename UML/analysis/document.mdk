@@ -147,6 +147,7 @@ Maintenant que nous avons présenté les deux composants logiciels, nous allons 
 \newpage  
 ~
 
+
 ## Analyse UML
 ### Client DCC
 
@@ -154,6 +155,8 @@ Pour bien représenter l'application dans son ensemble, il faut identifier sa co
 Ici, la composante principale est le réseau.
 C'est l'état du réseau et de la connexion avec le serveur qui déterminent l'évolution de l'application.
 C'est pourquoi nous allons commencer par une représentation en machine d'état de l'application.
+
+
 
 #### Diagramme de machine d'état
 
@@ -165,6 +168,8 @@ On retrouve deux états principaux dans l'application :
 
 * L'état de connexion inactive,
 * L'état de connexion active.
+
+
 
 
 
@@ -185,6 +190,8 @@ Il est possible que des états de transition existent pour nettoyer les ressourc
 
 
 
+
+
 ##### Connexion active
 
 Dans cet état, on retrouve le cas d'utilisation principal de l'application, qui est d'exploiter les informations et les commandes données par le serveur DCC.
@@ -195,6 +202,15 @@ On distingue quatre sous-états:
 * Échec de connexion,
 * Connecté,
 * Connexion perdue.
+
+On distingue quatre sous-états:
+
+* Connexion en cours,
+* Échec de connexion,
+* Connecté,
+* Connexion perdue.
+
+Le premier état est *connexion en cours*. En case de succès de la connexion, on bascule en état *connecté*. En cas d'échec, on passe en état *échec de connexion*. Il est possible de réessayer, ce qui repasse la machine à l'état *connexion en cours*.
 
 Le premier état est *connexion en cours*. En cas de succès de la connexion, on bascule en état *connecté*.
 En cas d'échec, on passe en état *échec de connexion*.
@@ -216,6 +232,17 @@ En cas de succès, l'état connecté sera de nouveau actifs, **les sous-états**
 ~TexRaw
 \clearpage  
 ~
+
+L'état *connecté* comprend des sous-machines en parallèle correspondant aux quatre grandes fonctionnalités du logiciel.
+Ces quatre machines sont basées sur un modèle commun :
+
+* Initialisation,
+* Données prêtes,
+* Exploitation d'une sous-fonctionnalité.
+
+Lors d'une perte de connexion ou d'activité (voir section XXX), la machine passe à l'état *connexion perdue*, ce qui va figer les élements de l'interface utilisateur jusqu'à ce que la connexion soit revenue. Dans cet état, l'utilisateur peut décider d'arrêter la communication. Une **temporisation** intervient au bout de **30 secondes** et fait passer l'application en état *connexion inactive*. Pendant ces 30 secondes, l'application tentera de se reconnecter au serveur DCC. En cas de succès, l'état connecté sera de nouveau actifs, **les sous-états** gardent leurs états actifs précédents et **ne repassent pas par l'état d'initialisation**.
+
+
 
 #### Diagramme de classes
 
@@ -400,20 +427,14 @@ En réalité la valeur sera comprise entre 0 et 19199.
 En effet, le moteur sera un moteur pas à pas de 200 pas, avec un rapport de réduction de 3 (poulie crantée) ainsi que 32 micro-pas par pas (driver de moteur).
 Cela fait 19200 pas de moteur possibles.
 
-# Présentation du matériel
-
-## Système DCC
-
-## Plaque tournante
-
-// TODO
-
 # Conclusion {-}
 
-// TODO
-
+Dans ce document, nous avons vu la décomposition en classes et en machines d'état des deux logiciels à implémenter pour le projet.
+En outre, nous avons décrit les nouvelles trames réseau à implémenter pour les clients et le logiciel "service plaque tournante".
+Le serveur DCC devra, quant à lui, router correctement ces messages, en se basant sur le premier caractère du message, identifiant le groupe de fonctionnalités concerné.
 
 [synoptic]: images/synoptic.png "synoptic" { width:auto; max-width:90% }
+[classdiagram]: images/classdiagram.png "classdiagram" { width:auto; max-width:100% }
 [rpi_software]: images/rpi_software.png "rpi_software" { width:auto; max-width:90% }
 [classdiagram]: images/classdiagram.png "client_classdiagram" { width:auto; max-width:90% }
 [statemachine]: images/statemachine.png "client_statemachine" { width:auto; max-width:90% }
