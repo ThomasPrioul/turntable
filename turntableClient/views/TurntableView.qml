@@ -87,7 +87,7 @@ Item {
                             }
 
                             Label {
-                                text: app.turntable.nbSteps === -1 ? "unknown" : app.turntable.position / app.turntable.nbSteps * 360.0 + "° (" + app.turntable.position + ")"
+                                text: app.turntable.nbSteps === -1 ? "unknown" : (app.turntable.position / app.turntable.nbSteps * 360.0).toFixed(2) + "° (" + app.turntable.position + ")"
                                 Layout.fillWidth: true
                             }
                         }
@@ -154,6 +154,7 @@ Item {
                                 onClicked: {
                                     app.turntable.stop();
                                 }
+
                                 enabled: app.turntable.busy && !app.turntable.resetting
                             }
                         }
@@ -231,6 +232,42 @@ Item {
                                 text: qsTr("Get config")
                                 onClicked: app.turntable.getConfig();
                             }
+
+                            Button {
+                                text: qsTr("Go to position")
+                                onClicked: goToPositionMenu.open();
+
+                                Menu {
+                                    id: goToPositionMenu
+                                    transformOrigin: Menu.Top
+                                    onVisibleChanged: {
+                                        if (visible) {
+                                            goToPositionTextField.clear()
+                                        }
+                                    }
+
+                                    Item {
+                                        anchors.fill: parent
+
+                                        RowLayout {
+                                            anchors.margins: 10
+                                            anchors.fill: parent
+                                            TextField {
+                                                id : goToPositionTextField
+                                                Layout.fillWidth: true
+                                                placeholderText: qsTr("Position")
+                                            }
+                                            Button {
+                                                text: qsTr("Go!")
+                                                onClicked: {
+                                                    app.turntable.moveToPosition(goToPositionTextField.text);
+                                                    goToPositionMenu.close();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -262,11 +299,19 @@ Item {
                 Layout.fillWidth: true
             }
 
-            TextField {
-                id: newTrackPositionField
-                placeholderText: qsTr("Position of the track")
+            RowLayout {
                 Layout.fillWidth: true
-                validator: IntValidator { bottom: 0; top: (app.turntable.nbSteps - 1) }
+                TextField {
+                    id: newTrackPositionField
+                    placeholderText: qsTr("Position of the track")
+                    Layout.fillWidth: true
+                    validator: IntValidator { bottom: 0; top: (app.turntable.nbSteps - 1) }
+                }
+
+                Button {
+                    text: qsTr("Current")
+                    onClicked: newTrackPositionField.text = app.turntable.position.toString();
+                }
             }
 
             Button {
