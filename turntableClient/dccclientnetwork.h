@@ -4,7 +4,7 @@
 #include <QtNetwork>
 #include <vector>
 #include <string>
-#include "circularbuffer.h"
+#include "../turntableService/circularbuffer.h"
 
 QT_BEGIN_NAMESPACE
 class QTcpSocket;

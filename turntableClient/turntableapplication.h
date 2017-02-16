@@ -7,12 +7,14 @@
 #include "dccclientnetwork.h"
 #include "clientsettings.h"
 #include "controllers/turntablecontroller.h"
+#include "controllers/lococontroller.h"
 
 class TurntableApplication : public QGuiApplication
 {
     Q_OBJECT
     Q_PROPERTY(DccClientNetwork* network READ network NOTIFY networkChanged)
     Q_PROPERTY(TurntableController* turntable READ turntable NOTIFY turntableChanged)
+    Q_PROPERTY(LocoController* locomotives READ locomotives NOTIFY turntableChanged)
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
     Q_PROPERTY(ClientSettings* settings READ settings)
 
@@ -22,12 +24,14 @@ public:
     bool connected() const { return m_connected; }
     DccClientNetwork* network() { return &m_network; }
     TurntableController* turntable() { return &m_turntable; }
+    LocoController* locomotives() { return &m_locomotives; }
     ClientSettings* settings() { return &m_settings; }
 
 signals:
     void connectedChanged();
     void networkChanged();
     void turntableChanged();
+    void locomotivesChanged();
     void messageReceived(const std::string& msg);
     void messageReceivedQString(const QString& msg);
 
@@ -47,9 +51,11 @@ private slots:
 private:
     bool m_connected = false;
     QQmlApplicationEngine m_engine;
+    LocoController m_locomotives;
     DccClientNetwork m_network;
     ClientSettings m_settings;
     TurntableController m_turntable;
+
 };
 
 #endif // TURNTABLEAPPLICATION_H

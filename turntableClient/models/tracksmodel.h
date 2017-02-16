@@ -16,7 +16,7 @@ public:
     }
 
     QQmlListProperty<Track> list() {
-        return QQmlListProperty<Track>(this, _list);
+        return QQmlListProperty<Track>(this, m_tracks);
     }
 
 signals:
@@ -28,7 +28,7 @@ public slots:
         Track* existingItem = nullptr;
 
         // Check whether there's already a track with the same name
-        for (auto i : _list) {
+        for (auto i : m_tracks) {
             if (i->name() == name) {
                 existingItem = i;
                 if (existingItem->position() != pos) {
@@ -39,14 +39,14 @@ public slots:
         }
 
         if (existingItem == nullptr) {
-            _list.append(new Track(name, pos));
+            m_tracks.append(new Track(name, pos));
             emit listChanged();
         }
     }
 
     void deleteTrack(Track* track)
     {
-        _list.removeAll(track);
+        m_tracks.removeAll(track);
         emit listChanged();
     }
 
@@ -54,7 +54,7 @@ public slots:
     {
         Track* existingItem = nullptr;
 
-        for (auto i : _list) {
+        for (auto i : m_tracks) {
             if (i->name() == track) {
                 existingItem = i;
                 break;
@@ -62,7 +62,7 @@ public slots:
         }
 
         if (existingItem != nullptr) {
-            _list.removeAll(existingItem);           
+            m_tracks.removeAll(existingItem);
         }
 
         emit listChanged();
@@ -70,12 +70,12 @@ public slots:
 
     void clear()
     {
-        _list.clear();
+        m_tracks.clear();
         emit listChanged();
     }
 
 private:
-    QList<Track*> _list;
+    QList<Track*> m_tracks;
 };
 
 #endif // MOTOR_H

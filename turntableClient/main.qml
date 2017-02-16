@@ -42,6 +42,9 @@ ApplicationWindow {
                 TabButton {
                     text: qsTr("Turntable")
                 }
+                TabButton {
+                    text: qsTr("Locomotives")
+                }
             }
 
             ToolButton {
@@ -98,6 +101,10 @@ ApplicationWindow {
         TurntableView {
             id: turntableView
             enabled: app.connected
+        }
+
+        LocomotivesView {
+            id: locomotivesView
         }
     }
 
