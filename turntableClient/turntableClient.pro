@@ -12,7 +12,8 @@ SOURCES += main.cpp \
     macros.cpp \
     clientsettings.cpp \
     models/locomotive.cpp \
-    controllers/lococontroller.cpp
+    controllers/lococontroller.cpp \
+    models/locomotivefunction.cpp
 
 RESOURCES += qml.qrc
 
@@ -50,7 +51,8 @@ HEADERS += \
     models/tracksmodel.h \
     clientsettings.h \
     models/locomotive.h \
-    controllers/lococontroller.h
+    controllers/lococontroller.h \
+    models/locomotivefunction.h
 
 linux-rasp-pi2-g++ {
     target.files    = turntableservice

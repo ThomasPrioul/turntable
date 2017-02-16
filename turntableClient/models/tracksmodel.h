@@ -39,7 +39,18 @@ public slots:
         }
 
         if (existingItem == nullptr) {
-            m_tracks.append(new Track(name, pos));
+            if (m_tracks.length() == 0)
+                m_tracks.append(new Track(name, pos));
+            else {
+                int i = 0;
+                for (; i < m_tracks.length(); i++) {
+                    if (m_tracks.at(i)->name().compare(name) > 0) {
+                        break;
+                    }
+                }
+                m_tracks.insert(i, new Track(name, pos));
+            }
+
             emit listChanged();
         }
     }

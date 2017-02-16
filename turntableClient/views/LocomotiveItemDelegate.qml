@@ -10,14 +10,44 @@ Pane {
     ColumnLayout {
         id: locomotiveLayout
         anchors.fill: parent
-        Label { text: "Locomotive " + id ; Layout.fillHeight: false; Layout.fillWidth: true; font.bold: true; }
 
-        Switch {
-            text: qsTr("Reverse direction")
-            checked: direction
+        RowLayout {
+            Layout.fillWidth: true
+            Label {
+                text: "Locomotive ";
+                Layout.fillWidth: true;
+            }
+            TextField {
+                id: locoIdTextField
+                width: 50
+
+                font.bold: true;
+
+                Binding {
+                    target: model
+                    property: "id"
+                    value: locoIdTextField.text
+                }
+            }
+
+            Button {
+                text: "Refresh"
+                onClicked: app.locomotives.refresh(id);
+            }
         }
 
 
+        Switch {
+            id: directionSwitch
+            text: qsTr("Reverse direction")
+            checked: direction
+
+            Binding {
+                target: model
+                property: "direction"
+                value: directionSwitch.checked
+            }
+        }
 
         RowLayout {
             Column {

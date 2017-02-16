@@ -105,6 +105,7 @@ ApplicationWindow {
 
         LocomotivesView {
             id: locomotivesView
+            enabled: app.connected
         }
     }
 

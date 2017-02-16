@@ -9,7 +9,7 @@
 #include <QtConcurrent>
 #endif
 
-constexpr int pin_enable =  13;
+constexpr int pin_enable = 13;
 constexpr int pin_step = 26;
 constexpr int pin_dir = 19;
 constexpr int pin_zeroSensor = 21;
@@ -18,7 +18,7 @@ constexpr int pin_polarityRelay = 6;
 
 constexpr int notifyThreshold = 64;
 constexpr int accurateNotifyThreshold = notifyThreshold/8;
-constexpr int64_t stepWaitTime = 3;
+constexpr int64_t wakeTime = 400;
 constexpr int64_t normalWaitTime = 4000;
 constexpr int64_t fastWaitTime = 1000;
 constexpr bool defaultDirection = true;
@@ -33,16 +33,16 @@ bool is_ready(std::future<R> const& f)
 
 inline static void wakeMotor()
 {
-    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
-    digitalWrite(pin_sleep, 0);
-    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
+    std::this_thread::sleep_for(std::chrono::milliseconds{wakeTime});
+    //digitalWrite(pin_sleep, 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds{wakeTime});
 }
 
 inline static void sleepMotor()
 {
-    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
-    digitalWrite(pin_sleep, 1);
-    std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
+    std::this_thread::sleep_for(std::chrono::milliseconds{wakeTime});
+    //digitalWrite(pin_sleep, 0);
+    std::this_thread::sleep_for(std::chrono::milliseconds{wakeTime});
 }
 
 inline static bool getZeroSensorState()
@@ -53,8 +53,8 @@ inline static bool getZeroSensorState()
 static int64_t fastComputeSmoothDelay(int32_t stepsDone, int32_t movementSteps, int64_t baseTime) {
     int64_t out = baseTime;
 
-    constexpr int32_t rampLength = 100;
-    constexpr int32_t minEnhancedMovementLength = 300;
+    constexpr int32_t rampLength = 200;
+    constexpr int32_t minEnhancedMovementLength = 00;
     constexpr int32_t slowDownBaseTime = 20;
 
     if (movementSteps > minEnhancedMovementLength) {
@@ -82,17 +82,18 @@ TurntableMotor::TurntableMotor(QObject *parent) : QObject(parent)
     pinMode(pin_zeroSensor, INPUT);
 
     digitalWrite(pin_enable, 0);
+    digitalWrite(pin_sleep, 1);
     sleepMotor();
     digitalWrite(pin_step, 0);
     setPolarity(TrackPolarity::Normal);
     digitalWrite(pin_dir, defaultDirection);
-
 }
 
 TurntableMotor::~TurntableMotor()
 {
     sleepMotor();
     digitalWrite(pin_enable, 1);
+    digitalWrite(pin_sleep, 0);
 }
 
 void TurntableMotor::setNbSteps(int32_t numberOfSteps)

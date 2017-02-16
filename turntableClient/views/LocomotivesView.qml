@@ -17,6 +17,7 @@ Item {
         columnSpacing: 10
 
         Pane {
+            enabled: !app.turntable.busy
             Layout.fillHeight: true
             Layout.fillWidth: true
             Material.elevation: 6
@@ -82,6 +83,21 @@ Item {
 //                        }
 //                    }
 //                }
+            }
+        }
+        GridLayout {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+
+            Button {
+                highlighted: app.locomotives.powerActive
+                text: app.locomotives.powerActive ? qsTr("Power OFF") : qsTr("Power ON")
+                onClicked: {
+                    if (app.locomotives.powerActive)
+                        app.locomotives.powerOff();
+                    else
+                        app.locomotives.powerOn();
+                }
             }
         }
     }
