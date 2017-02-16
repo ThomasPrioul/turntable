@@ -20,6 +20,7 @@ namespace NetworkConfig  {
         const std::string position = "RP";
         const std::string sendConfig = "RC"; // RC
         const std::string nbSteps = "RI steps"; // RI steps
+        const std::string polarity = "RI polarity"; // RI polarity
         const std::string addTrack = "RV add"; // RV add "<trackName>" <pos>
         const std::string deleteTrack = "RV del"; // RV del "<trackName>"
     }
@@ -33,6 +34,7 @@ namespace NetworkConfig  {
         const std::string beginSendConfig = "SC begin"; // SC begin
         const std::string endSendConfig = "SC end"; // SC end
         const std::string nbSteps = "SI steps"; // SI steps <nbSteps>
+        const std::string polarity = "SI polarity"; // SI polarity <polarity: 0 for inverted, 1 for normal>
         const std::string trackDefinition = "SV "; // SV "<trackname>" <pos>
         const std::string addTrack = "SV add "; // SV add "<trackname>" <pos>
         const std::string deleteTrack = "SV del "; // SV del "<trackname>" <pos>

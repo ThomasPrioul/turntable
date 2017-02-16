@@ -5,16 +5,24 @@
 #include <string>
 #include <QDir>
 
+struct TrackInfo {
+    int32_t position;
+    bool polarity;
+};
+
 class TurntableTracks
 {
 public:
     TurntableTracks();
 
-    void addTrack(const std::string& key, int32_t value)
+    void addTrack(const std::string& key, int32_t value, bool polarity)
     {
         if (value >= 0) {
             deleteTrack(key);
-            tracks.insert({key, value});
+            TrackInfo info;
+            info.position = value;
+            info.polarity = polarity;
+            tracks.insert({key, info});
             saveFile();
         }
     }
@@ -24,12 +32,22 @@ public:
         auto search = tracks.find(track);
 
         if (search != tracks.end())
-            return search->second;
+            return search->second.position;
 
         return -1;
     }
 
-    std::unordered_map<std::string, int32_t> getTracks() const { return tracks; }
+    TrackInfo getTrackInfo(const std::string& track) const
+    {
+        auto search = tracks.find(track);
+
+        if (search != tracks.end())
+            return search->second;
+
+        return TrackInfo();
+    }
+
+    std::unordered_map<std::string, TrackInfo> getTracks() const { return tracks; }
 
     bool loadFile();
 
@@ -43,7 +61,7 @@ public:
 
 private:
     const std::string configFilePath = QDir(QDir::homePath()).filePath(".turntableSvcCfg").toStdString();
-    std::unordered_map<std::string, int32_t> tracks;
+    std::unordered_map<std::string, TrackInfo> tracks;
 };
 
 #endif // TURNTABLETRACKS_H

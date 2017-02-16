@@ -47,7 +47,8 @@ private slots:
     void motorResetStopped(bool success);
 
 private:
-    bool isClientConnected;
+    bool isClientConnected;   
+    void checkPolarity();
     TurntableMotor motor;
     TurntableNetwork network;
     TurntableTracks tracks;

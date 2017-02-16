@@ -42,9 +42,10 @@ bool TurntableTracks::loadFile()
             std::istringstream lineParser(line);
             std::string track;
             int32_t position;
+            bool polarity;
 
-            if (std::getline(lineParser, track, ';') && lineParser >> position) {
-                tracks.insert({track, position});
+            if (std::getline(lineParser, track, ';') && lineParser >> position && lineParser.ignore(10, ';') && lineParser >> polarity) {
+                tracks.insert({track, { position, polarity }});
                 std::cout << "Track: " << track << ", pos: " << position << std::endl;
             }
             else {
@@ -71,8 +72,8 @@ void TurntableTracks::saveFile()
         auto i = tracks.begin();
 
         while (i != tracks.end()) {
-            outputFile << i->first << ';' << i->second << '\n';
-            std::cout << i->first  << ';' << i->second << std::endl;
+            outputFile << i->first << ';' << i->second.position << ';' << i->second.polarity << '\n';
+            std::cout << i->first  << ';' << i->second.position << ';' << i->second.polarity << std::endl;
             ++i;
         }
 

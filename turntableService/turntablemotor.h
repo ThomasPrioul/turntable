@@ -10,6 +10,11 @@
     #include <future>
 #endif
 
+enum class TrackPolarity {
+    Inverted = 0,
+    Normal = 1
+};
+
 /*!
  * Controls the Turntable's motor.
  * The implementation uses the wiringPi library.
@@ -24,10 +29,13 @@ public:
 
     int32_t pos() const { return currentPos; }
     int32_t steps() const { return nb_steps; }
+    TrackPolarity polarity() const { return m_polarity; }
+    int32_t polarityThreshold() const { return m_polarityThreshold; }
 
     //! Sets the number of steps for the motor. This calculates the necessary constants used in other functions.
     void setNbSteps(int32_t numberOfSteps);
     void setReverse(bool reverse) { reverseDir = reverse; }
+    void setPolarityThreshold(int32_t threshold) { m_polarityThreshold = threshold; }
 
 signals:
     //! This event is emitted at the start of a movement request.
@@ -58,6 +66,9 @@ public slots:
     //! Command handler for 'stop' message.
     void stop();
 
+    //! Reverse the lines polarity (true = normal)
+    void setPolarity(TrackPolarity polarity);
+
 private:
     // Motor constants
     int32_t nb_steps;// = 19200;
@@ -66,6 +77,8 @@ private:
     int32_t minus_half_steps;// = -1 * half_steps;
 
     bool reverseDir;
+    TrackPolarity m_polarity; // True for normal, false for inverted
+    int32_t m_polarityThreshold;
 
     //! Current motor step
     int32_t currentPos = 0;

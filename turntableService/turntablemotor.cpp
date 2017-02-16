@@ -13,6 +13,9 @@ constexpr int pin_enable =  13;
 constexpr int pin_step = 26;
 constexpr int pin_dir = 19;
 constexpr int pin_zeroSensor = 21;
+constexpr int pin_sleep = 5;
+constexpr int pin_polarityRelay = 6;
+
 constexpr int notifyThreshold = 64;
 constexpr int accurateNotifyThreshold = notifyThreshold/8;
 constexpr int64_t stepWaitTime = 3;
@@ -28,17 +31,17 @@ bool is_ready(std::future<R> const& f)
 }
 #endif
 
-inline static void enableMotor()
+inline static void wakeMotor()
 {
     std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
-    digitalWrite(pin_enable, 0);
+    digitalWrite(pin_sleep, 0);
     std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
 }
 
-inline static void disableMotor()
+inline static void sleepMotor()
 {
     std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
-    digitalWrite(pin_enable, 1);
+    digitalWrite(pin_sleep, 1);
     std::this_thread::sleep_for(std::chrono::microseconds{normalWaitTime});
 }
 
@@ -71,19 +74,25 @@ TurntableMotor::TurntableMotor(QObject *parent) : QObject(parent)
     wiringPiSetupGpio();
 
     // Setup GPIO
-    pinMode(pin_enable, OUTPUT); // PIN_ENABLE
-    pinMode(pin_step, OUTPUT); // PIN_STEP
-    pinMode(pin_dir, OUTPUT); // PIN_DIR
+    pinMode(pin_enable, OUTPUT);
+    pinMode(pin_step, OUTPUT);
+    pinMode(pin_dir, OUTPUT);
+    pinMode(pin_sleep, OUTPUT);
+    pinMode(pin_polarityRelay, OUTPUT);
     pinMode(pin_zeroSensor, INPUT);
 
-    disableMotor();
+    digitalWrite(pin_enable, 0);
+    sleepMotor();
     digitalWrite(pin_step, 0);
+    setPolarity(TrackPolarity::Normal);
     digitalWrite(pin_dir, defaultDirection);
+
 }
 
 TurntableMotor::~TurntableMotor()
 {
-    disableMotor();
+    sleepMotor();
+    digitalWrite(pin_enable, 1);
 }
 
 void TurntableMotor::setNbSteps(int32_t numberOfSteps)
@@ -150,7 +159,13 @@ void TurntableMotor::stop()
 #endif
         keepRunning = false;
         //worker.get();
-    }
+     }
+}
+
+void TurntableMotor::setPolarity(TrackPolarity polarity)
+{
+    m_polarity = polarity;
+    digitalWrite(pin_polarityRelay, !((bool)m_polarity));
 }
 
 int32_t TurntableMotor::oneStep(bool direction, std::chrono::microseconds sleepTime)
@@ -191,7 +206,7 @@ void TurntableMotor::goToPositionWorker(qint32 endPosition)
 
     int32_t startPos = currentPos;
     emit movementStarted(startPos);
-    enableMotor();
+    wakeMotor();
 
     bool direction = shortestDirection(endPosition);
     setMotorDirection(direction);
@@ -217,14 +232,14 @@ void TurntableMotor::goToPositionWorker(qint32 endPosition)
         steps++;
     }
 
-    disableMotor();
+    sleepMotor();
     emit movementStopped(currentPos);
 }
 
 void TurntableMotor::moveIndefinitelyWorker(bool direction)
 {
     emit movementStarted(currentPos);
-    enableMotor();
+    wakeMotor();
     setMotorDirection(direction);
     int32_t notifySteps = 0;
 
@@ -240,7 +255,7 @@ void TurntableMotor::moveIndefinitelyWorker(bool direction)
         }
     }
 
-    disableMotor();
+    sleepMotor();
     emit movementStopped(currentPos);
 }
 
@@ -248,7 +263,7 @@ void TurntableMotor::resetWorker()
 {
     bool success = true;
     emit resetStarted();
-    enableMotor();
+    wakeMotor();
 
     // Arbitrary direction
     setMotorDirection(defaultDirection);
@@ -275,7 +290,7 @@ void TurntableMotor::resetWorker()
         currentPos = 0;
     }
 
-    disableMotor();
+    sleepMotor();
     emit resetStopped(success);
 }
 
