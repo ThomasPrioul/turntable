@@ -5,7 +5,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <vector>
-#include "../turntableClient/circularbuffer.h"
+#include "circularbuffer.h"
 
 class TurntableNetwork : public QObject
 {

@@ -6,16 +6,6 @@
 #include "turntablemotor.h"
 #include "turntabletracks.h"
 
-/*
-enum class ServiceState {
-    Init,
-    AwaitingClient,
-    ConnectedInit,
-    ConnectedIdle,
-    ConnectedMoving
-};
-*/
-
 //! Possible results for Application initialization method
 enum class AppInitResult
 {
@@ -58,7 +48,6 @@ private slots:
 
 private:
     bool isClientConnected;
-    //ServiceState state;
     TurntableMotor motor;
     TurntableNetwork network;
     TurntableTracks tracks;

@@ -344,21 +344,3 @@ void TurntableService::catchUnixSignals(const std::vector<int>& quitSignals, con
         signal(sig, handler);
     }
 }
-
-/*
-void TurntableService::updateState()
-{
-    switch(state) {
-        case ServiceState::AwaitingClient:
-            if (isClientConnected) {
-                state = ServiceState::ConnectedInit;
-            }
-            break;
-        case ServiceState::ConnectedIdle:
-            if (!isClientConnected) {
-                state = ServiceState::AwaitingClient;
-            }
-            break;
-    }
-}
-*/
