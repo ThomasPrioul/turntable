@@ -47,43 +47,23 @@ inline static bool getZeroSensorState()
     return !((bool)digitalRead(pin_zeroSensor));
 }
 
-static int64_t computeSmoothDelay(int32_t current, int32_t start, int32_t end, int64_t baseTime) {
-    // Calculate percentage of journey
+static int64_t fastComputeSmoothDelay(int32_t stepsDone, int32_t movementSteps, int64_t baseTime) {
+    int64_t out = baseTime;
 
-    constexpr float beginRamp = 0.3;
-    constexpr float endRamp = 0.7;
-    constexpr float slowDownFactor = 5.0;
+    constexpr int32_t rampLength = 100;
+    constexpr int32_t minEnhancedMovementLength = 300;
+    constexpr int32_t slowDownBaseTime = 20;
 
-    float percentage = 1.0 - (std::fabs((current - start)) / std::fabs(end - start));
-    float out = baseTime;
-
-    if (percentage > endRamp) {
-        out += ((percentage - endRamp) * slowDownFactor * baseTime);
+    if (movementSteps > minEnhancedMovementLength) {
+        if (stepsDone < rampLength) {
+            out += (rampLength - stepsDone) * slowDownBaseTime;
+        }
+        else if (stepsDone >= (movementSteps - rampLength)) {
+            out += (stepsDone - movementSteps + rampLength + 1) * slowDownBaseTime;
+        }
     }
-    else if (percentage < beginRamp) {
-        out += ((beginRamp - percentage) * slowDownFactor * baseTime);
-    }
-
     return out;
 }
-
-//static int64_t fastComputeSmoothDelay(int32_t currentStepsDone,
-//                                      const int32_t twentyPercent,
-//                                      const int32_t heightyPercent,
-//                                      const int32_t hundredPercent,
-//                                      const int64_t baseTime) {
-//    int64_t out = baseTime;
-
-//    if (currentStepsDone > heightyPercent) {
-//        out += (currentStepsDone - heightyPercent)/hundredPercent * baseTime;
-//    }
-
-//    else if (currentStepsDone < twentyPercent) {
-//        out += (twentyPercent - currentStepsDone)/hundredPercent * baseTime;
-//    }
-
-//    return out;
-//}
 
 TurntableMotor::TurntableMotor(QObject *parent) : QObject(parent)
 {
@@ -126,7 +106,7 @@ void TurntableMotor::goToPositionAsync(int32_t endPosition)
 #endif
     }
     else {
-        std::cout << "A worker is already running!" << std::endl;
+        std::cout << "goToPositionAsync: a worker is already running!" << std::endl;
     }
 }
 
@@ -141,7 +121,7 @@ void TurntableMotor::moveIndefinitelyAsync(bool direction)
 #endif
     }
     else {
-        std::cout << "A worker is already running!" << std::endl;
+        std::cout << "moveIndefinitelyAsync: a worker is already running!" << std::endl;
     }
 }
 
@@ -157,7 +137,7 @@ void TurntableMotor::resetAsync()
 #endif
     }
     else {
-        std::cout << "A worker is already running!" << std::endl;
+        std::cout << "resetAsync: a worker is already running!" << std::endl;
     }
 }
 
@@ -218,19 +198,23 @@ void TurntableMotor::goToPositionWorker(qint32 endPosition)
 
     keepRunning = true;
     int32_t steps = 0;
+    int32_t movementSteps = abs(endPosition - startPos);
     int32_t notifySteps = 0;
+
+    if (movementSteps >= half_steps)
+        movementSteps = nb_steps - movementSteps;
 
     while (keepRunning && (currentPos != endPosition) && steps < nb_steps) {
 
         // Slow down at start and end
-        //oneStep(direction, std::chrono::microseconds { fastComputeSmoothDelay()})
-        oneStep(direction, std::chrono::microseconds {computeSmoothDelay(currentPos, startPos, endPosition, fastWaitTime)});
+        oneStep(direction, std::chrono::microseconds {fastComputeSmoothDelay(steps, movementSteps, fastWaitTime)});
 
         // Only notify every X steps
         if (++notifySteps >= notifyThreshold) {
             emit movementNotify(currentPos);
             notifySteps = 0;
         }
+        steps++;
     }
 
     disableMotor();
@@ -248,7 +232,6 @@ void TurntableMotor::moveIndefinitelyWorker(bool direction)
 
     while (keepRunning) {
         oneStep(direction, std::chrono::microseconds{normalWaitTime});
-        //std::this_thread::sleep_for(std::chrono::milliseconds{stepWaitTime * 16});
 
         // Only notify every X steps
         if (++notifySteps >= accurateNotifyThreshold) {

@@ -17,7 +17,7 @@ namespace NetworkConfig  {
         const std::string move = "RD"; // RD <pos>
         const std::string moveToTrack = "RD track"; // RD track "<trackname>"
         const std::string moveToPosition = "RD pos"; // RD pos <pos>
-        const std::string position = "RP"; // RD pos
+        const std::string position = "RP";
         const std::string sendConfig = "RC"; // RC
         const std::string nbSteps = "RI steps"; // RI steps
         const std::string addTrack = "RV add"; // RV add "<trackName>" <pos>

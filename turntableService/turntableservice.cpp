@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <QCommandLineParser>
+#include <QtGlobal>
 #include "turntableservice.h"
 #include "networkconfig.h"
 
@@ -150,7 +151,9 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
 {
     std::string msg(rawMessage.begin(), rawMessage.end());
 
+#ifdef QT_DEBUG
     std::cout << "Recu: " << msg << std::endl;
+#endif
 
     if (startsWith(msg, query::move)) {
         std::istringstream reader(msg);
@@ -280,7 +283,9 @@ void TurntableService::motorMovementNotification(int32_t newPosition)
         output << notif::position << newPosition << '\n';
         network.sendMessage(output);
     }
+#ifdef QT_DEBUG
     std::cout << "Motor pos = " << newPosition << std::endl;
+#endif
 }
 
 void TurntableService::motorMovementStarted(int32_t startPosition)
@@ -291,8 +296,10 @@ void TurntableService::motorMovementStarted(int32_t startPosition)
                   notif::position << startPosition << '\n';
         network.sendMessage(output);
     }
+#ifdef QT_DEBUG
     std::cout << "Motor started moving" << '\n';
     std::cout << "Motor pos = " << startPosition << '\n';
+#endif
 }
 
 void TurntableService::motorMovementStopped(int32_t endPosition)
@@ -303,9 +310,10 @@ void TurntableService::motorMovementStopped(int32_t endPosition)
                   notif::moveStopped << '\n';
         network.sendMessage(output);
     }
-
+#ifdef QT_DEBUG
     std::cout << "Motor pos = " << endPosition << '\n';
     std::cout << "Motor stopped moving" << std::endl;
+#endif
 }
 
 void TurntableService::motorResetStarted()
