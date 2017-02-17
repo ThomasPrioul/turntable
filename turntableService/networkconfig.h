@@ -14,7 +14,7 @@ namespace NetworkConfig  {
     namespace Query {
         const std::string reset = "RR";
         const std::string stop = "RS";
-        const std::string move = "RD"; // RD <pos>
+        const std::string move = "RD"; // RD <direction : 0 or 1>
         const std::string moveToTrack = "RD track"; // RD track "<trackname>"
         const std::string moveToPosition = "RD pos"; // RD pos <pos>
         const std::string position = "RP";
