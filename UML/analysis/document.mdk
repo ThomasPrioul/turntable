@@ -442,6 +442,7 @@ Réponses du serveur:
 
 Le caractère R de catégorie de message a été choisi car il était disponible et qu'il peut signifier "Rotonde".
 Ensuite, pour les commandes :
+
 * R comme Reset,
 * S comme Stop,
 * D comme Déplacer,
@@ -450,7 +451,16 @@ Ensuite, pour les commandes :
 * V comme Voie,
 * etc.
 
+**Remarques:**  
 A la différence des messages du protocole existant, le terminateur est un **\n** et non un **\r**.
+
+La configuration est stockée côté service plaque tournante, et peut être demandée à tout moment par un client (RC).
+Le service répond sous la forme suivante:
+
+* SC begin  
+* SV "Voie 1" 2000 0  
+* SV "Voie X" XXXX 1  
+* SC end  
 
 # Conclusion {-}
 
