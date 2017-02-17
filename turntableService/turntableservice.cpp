@@ -150,7 +150,9 @@ Polytech' Tours - 2017)");
     if (!tracks.loadFile())
         return AppInitResult::Error;
 
-    //motor.resetAsync();
+    // Reset on init
+    std::cout << "App init : resetting turntable" << std::endl;
+    motor.resetAsync();
     std::cout << "Init OK" << std::endl;
     std::cout << "Steps: " << nbSteps << std::endl;
     std::cout << "ReverseDir: " << (motorReverse ? "yes" : "no") << std::endl;
