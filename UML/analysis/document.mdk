@@ -396,7 +396,7 @@ Le message envoyé par le client est "CV\r" et la réponse est "DV\r".
 
 L'intégralité du protocole réseau pour le serveur DCC est présenté dans un fichier annexe qui sera fourni dans les livrables du projet. Un aperçu de ce fichier était disponible dans les annexes du cahier de spécifications.
 
-#### Serveur DCC et service plaque tournante
+#### Client DCC et service plaque tournante (via serveur DCC)
 
 Voici le protocole qui sera utilisé par le client DCC (via serveur DCC) et la plaque tournante pour communiquer sur un socket TCP.
 
@@ -418,18 +418,27 @@ Requêtes du client:
 | Supprimer une voie       | RV del      | "< Nom de voie >"                      |
 | -------------------------| ------------| ---------------------------------------|
 
-| -------------------------| ---------| -------------------------------------|
-| Message                  | En-tête  | Données                              |
-+--------------------------+----------+--------------------------------------+
-| Déplacement commencé     | SD start |                                      |
-| Déplacement terminé      | SD stop  |                                      |
-| Reset commencé           | SR start |                                      |
-| Reset terminé            | SR stop  | Succès (0: fail, 1: success)         |
-| Notification de position | SP       | Position (comprise entre 0 et 65535) |
-| Début config             | SC begin |                                      |
-| Fin config               | SC end   |                                      |
-| a|
-| -------------------------| ---------| -------------------------------------|
+L'information de polarité est nécessaire pour éviter les courts-circuits entre la partie mobile et la partie statique,
+lorsque la plaque a été retournée à 180°.
+
+Réponses du serveur:
+
+| -------------------------| ------------| -------------------------------------|
+| Message                  | En-tête     | Données                              |
++--------------------------+-------------+--------------------------------------+
+| Déplacement commencé     | SD start    |                                      |
+| Déplacement terminé      | SD stop     |                                      |
+| Reset commencé           | SR start    |                                      |
+| Reset terminé            | SR stop     | Succès (0: fail, 1: success)         |
+| Notification de position | SP          | Position (comprise entre 0 et 65535) |
+| Début config             | SC begin    |                                      |
+| Définition de voie       | SV          | "< NomVoie >" < pos > < polarity >   |
+| Fin config               | SC end      |                                      |
+| Nombre de pas            | SI steps    | < nbSteps >                          |
+| Polarité                 | SI polarity | < polarity : 0 pour inverse, ou 1 >  |
+| Notification ajout voie  | SV add      |                                      |
+| Notification suppr voie  | SV delete   |                                      |
+| -------------------------| ------------| -------------------------------------|
 
 Le caractère R de catégorie de message a été choisi car il était disponible et qu'il peut signifier "Rotonde".
 Ensuite, pour les commandes :
@@ -437,14 +446,11 @@ Ensuite, pour les commandes :
 * S comme Stop,
 * D comme Déplacer,
 * I comme Info,
+* C comme Config,
+* V comme Voie,
 * etc.
 
-A l'exception du dernier message, les trois autres messages sont envoyés par le serveur DCC. Le message *Notification de position* est envoyé par le service plaque tournante lors du mouvement de la plaque.
-
-Pour les deux messages *Déplacer vers position* et *Notification de position*, la position est envoyée sous forme décimale.
-En réalité la valeur sera comprise entre 0 et 19199.
-En effet, le moteur sera un moteur pas à pas de 200 pas, avec un rapport de réduction de 3 (poulie crantée) ainsi que 32 micro-pas par pas (driver de moteur).
-Cela fait 19200 pas de moteur possibles.
+A la différence des messages du protocole existant, le terminateur est un **\n** et non un **\r**.
 
 # Conclusion {-}
 
