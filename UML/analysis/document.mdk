@@ -396,29 +396,48 @@ Le message envoyé par le client est "CV\r" et la réponse est "DV\r".
 
 L'intégralité du protocole réseau pour le serveur DCC est présenté dans un fichier annexe qui sera fourni dans les livrables du projet. Un aperçu de ce fichier était disponible dans les annexes du cahier de spécifications.
 
-##### Diagrammes de séquences
-
-To be continued...
-
 #### Serveur DCC et service plaque tournante
 
-Voici le protocole qui sera utilisé dans un premier temps par le serveur DCC et la plaque tournante pour communiquer sur un socket TCP.
+Voici le protocole qui sera utilisé par le client DCC (via serveur DCC) et la plaque tournante pour communiquer sur un socket TCP.
 
-| -------------------------| --------| -------------------------------------|
-| Message                  | En-tête | Données                              |
-+--------------------------+---------+--------------------------------------+
-| Reset plaque             | RR      |                                      |
-| Stop                     | RS      |                                      |
-| Déplacer vers position   | RD      | Position (comprise entre 0 et 65535) |
-| Notification de position | RN      | Position (comprise entre 0 et 65535) |
-| -------------------------| --------| -------------------------------------|
+Requêtes du client:
+
+| -------------------------| ------------| ---------------------------------------|
+| Message                  | En-tête     | Données                                |
++--------------------------+-------------+----------------------------------------+
+| Reset plaque             | RR          |                                        |
+| Stop                     | RS          |                                        |
+| Déplacer vers position   | RD pos      | Position (comprise entre 0 et 65535)   |
+| Déplacer vers direction  | RD          | Direction (1: anti, 0: horaire)        |
+| Déplacer vers une voie   | RD track    | Nom de voie entre guillemets           |
+| Demande de position      | RP          |                                        |
+| Demande envoi config     | RC          |                                        |
+| Demande info nb pas      | RI steps    |                                        |
+| Demande polarite (relai) | RI polarity |                                        |
+| Ajouter/editer une voie  | RV add      | "< Nom de voie >" < pos > < polarity > |
+| Supprimer une voie       | RV del      | "< Nom de voie >"                      |
+| -------------------------| ------------| ---------------------------------------|
+
+| -------------------------| ---------| -------------------------------------|
+| Message                  | En-tête  | Données                              |
++--------------------------+----------+--------------------------------------+
+| Déplacement commencé     | SD start |                                      |
+| Déplacement terminé      | SD stop  |                                      |
+| Reset commencé           | SR start |                                      |
+| Reset terminé            | SR stop  | Succès (0: fail, 1: success)         |
+| Notification de position | SP       | Position (comprise entre 0 et 65535) |
+| Début config             | SC begin |                                      |
+| Fin config               | SC end   |                                      |
+| a|
+| -------------------------| ---------| -------------------------------------|
 
 Le caractère R de catégorie de message a été choisi car il était disponible et qu'il peut signifier "Rotonde".
 Ensuite, pour les commandes :
 * R comme Reset,
 * S comme Stop,
 * D comme Déplacer,
-* N comme Notification.
+* I comme Info,
+* etc.
 
 A l'exception du dernier message, les trois autres messages sont envoyés par le serveur DCC. Le message *Notification de position* est envoyé par le service plaque tournante lors du mouvement de la plaque.
 
