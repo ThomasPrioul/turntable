@@ -36,8 +36,8 @@ namespace NetworkConfig  {
         const std::string nbSteps = "SI steps"; // SI steps <nbSteps>
         const std::string polarity = "SI polarity"; // SI polarity <polarity: 0 for inverted, 1 for normal>
         const std::string trackDefinition = "SV "; // SV "<trackname>" <pos> <polarity>
-        const std::string addTrack = "SV add "; // SV add "<trackname>" <pos> <polarity>
-        const std::string deleteTrack = "SV del "; // SV del "<trackname>" <pos> <polarity>
+        const std::string addTrack = "SV add "; // SV add "<trackname>"
+        const std::string deleteTrack = "SV del "; // SV del "<trackname>"
     }
 }
 
