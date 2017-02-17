@@ -30,6 +30,13 @@ bool TurntableNetwork::start(const QHostAddress &ipAddress, quint16 port)
     return true;
 }
 
+void TurntableNetwork::quit()
+{
+    if (clientSocket != Q_NULLPTR) {
+        clientSocket->disconnectFromHost();
+    }
+}
+
 void TurntableNetwork::sendMessage(const char* str, size_t len)
 {
     if (clientSocket != Q_NULLPTR) {

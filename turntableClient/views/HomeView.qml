@@ -103,6 +103,19 @@ Item {
                 target: notConnectedLabel
                 visible: false
             }
+        },
+        State {
+            name: "NormalState"
+            when: !app.connected
+
+            PropertyChanges {
+                target: connectedLayoutRoot
+                visible: false
+            }
+            PropertyChanges {
+                target: notConnectedLabel
+                visible: true
+            }
         }
     ]
 }

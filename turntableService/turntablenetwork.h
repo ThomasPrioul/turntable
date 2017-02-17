@@ -5,7 +5,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <vector>
-#include "../turntableClient/circularbuffer.h"
+#include "circularbuffer.h"
 
 class TurntableNetwork : public QObject
 {
@@ -15,12 +15,7 @@ public:
     ~TurntableNetwork();
 
     bool start(const QHostAddress &ipAddress, quint16 port);
-    void quit()
-    {
-        if (clientSocket != Q_NULLPTR) {
-            clientSocket->disconnectFromHost();
-        }
-    }
+    void quit();
 
 signals:
     void messageReceived(const std::vector<char> &message);

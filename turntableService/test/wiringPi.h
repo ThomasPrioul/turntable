@@ -8,7 +8,7 @@ void digitalWrite(int pin, int value)
 
 int digitalRead(int pin)
 {
-    return 1;
+    return 0;
 }
 
 void wiringPiSetupGpio()

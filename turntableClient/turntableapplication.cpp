@@ -4,7 +4,6 @@
 #include <QQmlEngine>
 #include "turntableapplication.h"
 #include "../turntableService/networkconfig.h"
-#include "models/tracksmodel.h"
 
 namespace query = NetworkConfig::Query;
 namespace notif = NetworkConfig::Notification;
@@ -12,6 +11,7 @@ namespace notif = NetworkConfig::Notification;
 TurntableApplication::TurntableApplication(int &argc, char **argv[])
     : QGuiApplication(argc, *argv)
     , m_engine()
+    , m_locomotives(this, this)
     , m_network(this)
     , m_settings(this)
     , m_turntable(this, this)
@@ -27,10 +27,12 @@ TurntableApplication::TurntableApplication(int &argc, char **argv[])
 
     // Qml registeration : prevents errors and gives autocomplete
     qmlRegisterType<DccClientNetwork>("turntable.client", 1, 0, "Network");
-    //qmlRegisterType<ClientSettings>("turntable.client", 1, 0, "AppSettings");
     qmlRegisterType<Track>("turntable.client.models", 1, 0, "Track");
     qmlRegisterType<TracksModel>("turntable.client.models", 1, 0, "TrackData");
+    qmlRegisterType<Locomotive>("turntable.client.models", 1, 0, "Locomotive");
+    qmlRegisterType<LocomotiveFunction>("turntable.client.models", 1, 0, "LocomotiveFunction");
     qmlRegisterType<TurntableController>("turntable.client.controllers", 1, 0, "TurntableController");
+    qmlRegisterType<LocoController>("turntable.client.controllers", 1, 0, "LocoController");
 
     m_settings.load();
 

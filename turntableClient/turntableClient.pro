@@ -8,7 +8,12 @@ TARGET = turntableClient
 SOURCES += main.cpp \
     turntableapplication.cpp \
     controllers/turntablecontroller.cpp \
-    dccclientnetwork.cpp
+    dccclientnetwork.cpp \
+    macros.cpp \
+    clientsettings.cpp \
+    models/locomotive.cpp \
+    controllers/lococontroller.cpp \
+    models/locomotivefunction.cpp
 
 RESOURCES += qml.qrc
 
@@ -36,15 +41,18 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     turntableapplication.h \
-    circularbuffer.h \
     ../turntableService/networkconfig.h \
+    ../turntableService/circularbuffer.h \
     macros.h \
     controllers/icontroller.h \
     controllers/turntablecontroller.h \
     dccclientnetwork.h \
     models/track.h \
     models/tracksmodel.h \
-    clientsettings.h
+    clientsettings.h \
+    models/locomotive.h \
+    controllers/lococontroller.h \
+    models/locomotivefunction.h
 
 linux-rasp-pi2-g++ {
     target.files    = turntableservice

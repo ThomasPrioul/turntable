@@ -1,9 +1,8 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <QFileInfo>
-
-#include "turntabletracks.h"
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include "clientsettings.h"
 
 // check if file exists and if yes: Is it really a file and not a directory?
 static bool fileExists(const std::string& path) {
@@ -11,7 +10,7 @@ static bool fileExists(const std::string& path) {
     return check_file.exists() && check_file.isFile();
 }
 
-TurntableTracks::TurntableTracks()
+ClientSettings::ClientSettings(QObject* parent) : QObject(parent), m_serverIP(NetworkConfig::defaultIP)
 {
     if (!fileExists(configFilePath)) {
         std::cout << "Configuration file doesn't exist." << '\n'
@@ -29,27 +28,37 @@ TurntableTracks::TurntableTracks()
     }
 }
 
-bool TurntableTracks::loadFile()
+void ClientSettings::clear()
+{
+    m_serverIP = std::string(NetworkConfig::defaultIP);
+    m_serverPort = NetworkConfig::defaultPort;
+    emit serverIPChanged();
+    emit serverPortChanged();
+}
+
+bool ClientSettings::load()
 {
     std::ifstream inputFile;
-    std::cout << "loadFile: reading tracks information from configuration file..." << std::endl;
+    std::cout << "loadFile: reading cfg from file" << std::endl;
     inputFile.open(configFilePath);
+
     if (inputFile.is_open()) {
-        tracks.clear();
         std::string line;
+        clear();
 
-        while (std::getline(inputFile, line)) {
+        if (std::getline(inputFile, line)) {
             std::istringstream lineParser(line);
-            std::string track;
-            int32_t position;
-            bool polarity;
+            std::string ip;
+            uint16_t port;
 
-            if (std::getline(lineParser, track, ';') && lineParser >> position && lineParser.ignore(10, ';') && lineParser >> polarity) {
-                tracks.insert({track, { position, polarity }});
-                std::cout << "Track: " << track << ", pos: " << position << std::endl;
+            if (std::getline(lineParser, ip, ';') && lineParser >> port) {
+                m_serverIP = ip;
+                m_serverPort = port;
+                emit serverIPChanged();
+                emit serverPortChanged();
             }
             else {
-                std::cerr << "Could not read trackname and position in line: " << line << '.' << std::endl;
+                std::cerr << "Could not read ip and port in line: " << line << '.' << std::endl;
             }
         }
 
@@ -64,22 +73,19 @@ bool TurntableTracks::loadFile()
     return false;
 }
 
-void TurntableTracks::saveFile()
+bool ClientSettings::save()
 {
     std::ofstream outputFile;
     outputFile.open (configFilePath, std::ios::trunc);
     if (outputFile.is_open()) {
-        auto i = tracks.begin();
-
-        while (i != tracks.end()) {
-            outputFile << i->first << ';' << i->second.position << ';' << i->second.polarity << '\n';
-            std::cout << i->first  << ';' << i->second.position << ';' << i->second.polarity << std::endl;
-            ++i;
-        }
-
+        outputFile << m_serverIP << ";" << m_serverPort << std::endl;
         outputFile.close();
+
+        return true;
     }
     else {
         std::cerr << "saveFile: could not open the configuration file (" << configFilePath << ")." << std::endl;
     }
+
+    return false;
 }

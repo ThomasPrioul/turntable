@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <QCommandLineParser>
+#include <QtGlobal>
 #include "turntableservice.h"
 #include "networkconfig.h"
 
@@ -33,17 +34,22 @@ AppInitResult TurntableService::initialize()
     QHostAddress networkAddr(NetworkConfig::defaultIP);
     quint16 networkPort = NetworkConfig::defaultPort;
     int32_t nbSteps = NetworkConfig::defaultSteps;
+    bool motorReverse = false;
+    int32_t motorTrackPolarityThreshold = 9500;
+
     QCommandLineParser parser;
     const QCommandLineOption helpOption = parser.addHelpOption();
     const QCommandLineOption versionOption = parser.addVersionOption();
     const QCommandLineOption ipOption("ip", "The IP address (and therefore the interface) to use.", "ip", QString(NetworkConfig::defaultIP));
     const QCommandLineOption portOption("port", "The port to use for TCP communication.", "port", QString::number(NetworkConfig::defaultPort));
     const QCommandLineOption stepsOption("steps", "The number of steps for the motor.", "steps", QString::number(NetworkConfig::defaultSteps));
+    const QCommandLineOption reverseOption("reverse", "Invert the motor's direction.");
+    const QCommandLineOption polarityOption("polaritySwitch", "Invert the polarity at the specified position in steps", "polaritySwitch", QString::number(9500));
 
     parser.setApplicationDescription(R"(Turntable background service
 Thomas Prioul
 Polytech' Tours - 2017)");
-    parser.addOptions({ ipOption, portOption, stepsOption });
+    parser.addOptions({ ipOption, portOption, stepsOption, reverseOption, polarityOption });
 
     if (!parser.parse(QCoreApplication::arguments())) {
         std::cerr << parser.errorText().toStdString();
@@ -106,9 +112,28 @@ Polytech' Tours - 2017)");
         nbSteps = parsedSteps;
     }
 
+    if (parser.isSet(polarityOption)) {
+        const QString polarityArg = parser.value(polarityOption);
+        bool parseValid;
+        int parsedThreshold = polarityArg.toInt(&parseValid);
+
+        if (!parseValid) {
+            std::cerr << "Could not parse given polarity threshold, using " << 9500 << " as default." << std::endl;
+            return AppInitResult::Error;
+        }
+
+        motorTrackPolarityThreshold = parsedThreshold;
+    }
+
+    if (parser.isSet(reverseOption)) {
+        motorReverse = true;
+    }
+
     // Init sub-objects
 
     motor.setNbSteps(nbSteps);
+    motor.setReverse(motorReverse);
+    motor.setPolarityThreshold(motorTrackPolarityThreshold);
     connect(&motor, &TurntableMotor::movementNotify, this, &TurntableService::motorMovementNotification);
     connect(&motor, &TurntableMotor::movementStarted, this, &TurntableService::motorMovementStarted);
     connect(&motor, &TurntableMotor::movementStopped, this, &TurntableService::motorMovementStopped);
@@ -124,6 +149,12 @@ Polytech' Tours - 2017)");
 
     if (!tracks.loadFile())
         return AppInitResult::Error;
+
+    //motor.resetAsync();
+    std::cout << "Init OK" << std::endl;
+    std::cout << "Steps: " << nbSteps << std::endl;
+    std::cout << "ReverseDir: " << (motorReverse ? "yes" : "no") << std::endl;
+    std::cout << "Polarity treshold: " << motorTrackPolarityThreshold << std::endl;
 
     return AppInitResult::Ok;
 }
@@ -141,6 +172,10 @@ void TurntableService::clientDisconnected()
 void TurntableService::messageReceived(const std::vector<char> &rawMessage)
 {
     std::string msg(rawMessage.begin(), rawMessage.end());
+
+#ifdef QT_DEBUG
+    std::cout << "Recu: " << msg << std::endl;
+#endif
 
     if (startsWith(msg, query::move)) {
         std::istringstream reader(msg);
@@ -203,7 +238,7 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
             std::ostringstream output;
             output << notif::beginSendConfig << '\n';
             for (auto i : tracks.getTracks()) {
-                output << notif::trackDefinition << '"' << i.first << "\" " << i.second << '\n';
+                output << notif::trackDefinition << '"' << i.first << "\" " << i.second.position << '\n';
             }
             output << notif::endSendConfig << '\n';
             network.sendMessage(output);
@@ -216,18 +251,26 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
             network.sendMessage(output);
         }
     }
+    else if (startsWith(msg, query::polarity)) {
+        if (isClientConnected) {
+            std::ostringstream output;
+            output << notif::polarity << ' ' << (bool)motor.polarity() << '\n';
+            network.sendMessage(output);
+        }
+    }
     else if (startsWith(msg, query::addTrack)) {
         std::istringstream reader(msg);
         std::string track;
         int32_t position;
+        bool polarity;
 
         if (reader.seekg(query::addTrack.length())) {
-            if (std::getline(std::getline(reader, track, '"'), track, '"') >> position) {
-                tracks.addTrack(track, position);
+            if (std::getline(std::getline(reader, track, '"'), track, '"') >> position >> polarity) {
+                tracks.addTrack(track, position, polarity);
 
                 if (isClientConnected) {
                     std::ostringstream output;
-                    output << notif::addTrack << '"' << track << "\" " << position << '\n';
+                    output << notif::addTrack << '"' << track << "\" " << position << polarity << '\n';
                     network.sendMessage(output);
                 }
             }
@@ -238,6 +281,8 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
         else {
             std::cerr << "Could not find arguments in message: " << msg << std::endl;
         }
+
+        checkPolarity();
     }
     else if (startsWith(msg, query::deleteTrack)) {
         std::istringstream reader(msg);
@@ -260,6 +305,8 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
         else {
             std::cerr << "Could not find arguments in message: " << msg << std::endl;
         }
+
+        checkPolarity();
     }
 }
 
@@ -270,7 +317,9 @@ void TurntableService::motorMovementNotification(int32_t newPosition)
         output << notif::position << newPosition << '\n';
         network.sendMessage(output);
     }
+#ifdef QT_DEBUG
     std::cout << "Motor pos = " << newPosition << std::endl;
+#endif
 }
 
 void TurntableService::motorMovementStarted(int32_t startPosition)
@@ -281,21 +330,26 @@ void TurntableService::motorMovementStarted(int32_t startPosition)
                   notif::position << startPosition << '\n';
         network.sendMessage(output);
     }
+#ifdef QT_DEBUG
     std::cout << "Motor started moving" << '\n';
     std::cout << "Motor pos = " << startPosition << '\n';
+#endif
 }
 
 void TurntableService::motorMovementStopped(int32_t endPosition)
 {
+    checkPolarity();
+
     if (isClientConnected) {
         std::ostringstream output;
         output << notif::position << endPosition << '\n' <<
                   notif::moveStopped << '\n';
         network.sendMessage(output);
     }
-
+#ifdef QT_DEBUG
     std::cout << "Motor pos = " << endPosition << '\n';
     std::cout << "Motor stopped moving" << std::endl;
+#endif
 }
 
 void TurntableService::motorResetStarted()
@@ -309,11 +363,40 @@ void TurntableService::motorResetStarted()
 
 void TurntableService::motorResetStopped(bool success)
 {
+    checkPolarity();
+
     if (isClientConnected) {
         std::ostringstream output;
         output << notif::resetStopped << (int)success << '\n';
         network.sendMessage(output);
     }
+}
+
+void TurntableService::checkPolarity()
+{
+    // Check polarity
+    TrackPolarity pol = TrackPolarity::Normal;
+
+    // 1st : verify threshold
+    if (motor.pos() >= motor.polarityThreshold()) {
+        pol = TrackPolarity::Inverted;
+        std::cout << "Switching relay to inverted because >= threshold" << std::endl;
+    }
+    else {
+        std::cout << "Switching relay to normal because < threshold" << std::endl;
+    }
+
+    // 2nd: check if in front of a track
+    for (auto i : tracks.getTracks()) {
+        if (i.second.position == motor.pos() && i.second.polarity == false) {
+            pol = (pol == TrackPolarity::Inverted ? TrackPolarity::Normal : TrackPolarity::Inverted);
+            std::cout << "Switching relay again because aligned with an inverted track." << std::endl;
+            break;
+        }
+    }
+
+    std::cout << "Polarity = " << (pol == TrackPolarity::Normal ? "Normal" : "Inverted") << std::endl;
+    motor.setPolarity(pol);
 }
 
 // https://gist.github.com/azadkuh/a2ac6869661ebd3f8588
@@ -334,21 +417,3 @@ void TurntableService::catchUnixSignals(const std::vector<int>& quitSignals, con
         signal(sig, handler);
     }
 }
-
-/*
-void TurntableService::updateState()
-{
-    switch(state) {
-        case ServiceState::AwaitingClient:
-            if (isClientConnected) {
-                state = ServiceState::ConnectedInit;
-            }
-            break;
-        case ServiceState::ConnectedIdle:
-            if (!isClientConnected) {
-                state = ServiceState::AwaitingClient;
-            }
-            break;
-    }
-}
-*/

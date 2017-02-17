@@ -21,10 +21,9 @@ HEADERS += \
     turntableservice.h \
     turntablemotor.h \
     turntablenetwork.h \
-    ../turntableClient/circularbuffer.h \
-    servicestate.h \
     networkconfig.h \
-    turntabletracks.h
+    turntabletracks.h \
+    circularbuffer.h
 
 linux-rasp-pi2-g++ {
     QT += concurrent

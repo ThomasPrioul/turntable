@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[])
 {
-    qRegisterMetaType<int32_t>("int32_t");
+    qRegisterMetaType<int32_t>("int32_t"); // Needed for Qt meta engine, for QFuture
     TurntableService app(argc, &argv);
 
     auto result = app.initialize();
