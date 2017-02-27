@@ -30,5 +30,6 @@ However Qt is installed on a ready-to-use VM with a working cross-compiling tool
 Visit the wiki for manual setup of the host developement machine and of the RPi.
 
 # Video demo
-https://youtu.be/3iFZytrDC-M
+https://youtu.be/3iFZytrDC-M  
+
 https://1drv.ms/v/s!Ap4uJ_Cmvx8BiL4NV20U5qiH8EYIEg
