@@ -28,3 +28,7 @@ TurntableClient is the GUI program that allows you to connect to the DCC server,
 At this time, deployment isn't packaged into installers. You simply compile and run from Qt Creator.
 However Qt is installed on a ready-to-use VM with a working cross-compiling toolchain. So it is easy to develop and deploy to the RPi.
 Visit the wiki for manual setup of the host developement machine and of the RPi.
+
+# Video demo
+https://youtu.be/3iFZytrDC-M
+https://1drv.ms/v/s!Ap4uJ_Cmvx8BiL4NV20U5qiH8EYIEg
