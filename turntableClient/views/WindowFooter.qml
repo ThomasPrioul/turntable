@@ -27,15 +27,15 @@ Rectangle {
         Button {
             id: connectButton
             text: app.connected ? qsTr("Disconnect") : qsTr("Connect")
-            onClicked: connectionPopup.open()
-            //            onClicked: {
-            //                if (!app.connected) {
-            //                    app.network.connectToHost("127.0.0.1", 2017);
-            //                }
-            //                else {
-            //                    app.network.disconnectFromHost();
-            //                }
-            //            }
+            //onClicked: connectionPopup.open()
+            onClicked: {
+                if (!app.connected) {
+                    app.network.connectToHost("127.0.0.1", 2017);
+                    }
+                 else {
+                    app.network.disconnectFromHost();
+                    }
+             }
         }
     }
 }

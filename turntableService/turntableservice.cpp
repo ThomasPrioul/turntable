@@ -238,7 +238,10 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
             std::ostringstream output;
             output << notif::beginSendConfig << '\n';
             for (auto i : tracks.getTracks()) {
-                output << notif::trackDefinition << '"' << i.first << "\" " << i.second.position << '\n';
+                int relay = 0;
+                if (i.second.polarity)
+                    relay = 1;
+                output << notif::trackDefinition << '"' << i.first << "\" " << i.second.position << " " << relay <<'\n';
             }
             output << notif::endSendConfig << '\n';
             network.sendMessage(output);
@@ -270,7 +273,7 @@ void TurntableService::messageReceived(const std::vector<char> &rawMessage)
 
                 if (isClientConnected) {
                     std::ostringstream output;
-                    output << notif::addTrack << '"' << track << "\" " << position << polarity << '\n';
+                    output << notif::addTrack << '"' << track << "\" " << position << " " << polarity << '\n';
                     network.sendMessage(output);
                 }
             }

@@ -36,10 +36,11 @@ void TurntableController::messageReceived(const std::string &msg)
         if (reader.seekg(notif::addTrack.length())) {
             std::string track;
             int position;
+            int relay;
 
-            if (std::getline(std::getline(reader, track, '"'), track, '"')  >> position) {
+            if (std::getline(std::getline(reader, track, '"'), track, '"')  >> position  >> relay) {
                 // The method will discard duplicated or update the position
-                m_tracks.addTrack(QString::fromStdString(track), position);
+                m_tracks.addTrack(QString::fromStdString(track), position, relay);
             }
         }
         else {
@@ -67,11 +68,12 @@ void TurntableController::messageReceived(const std::string &msg)
         if (reader.seekg(notif::trackDefinition.length())) {
             std::string track;
             int position;
+            int relay;
 
             // Read quoted string
-            if (std::getline(std::getline(reader, track, '"'), track, '"')  >> position) {
+            if (std::getline(std::getline(reader, track, '"'), track, '"')  >> position >> relay) {
                 // The method will discard duplicated or update the position
-                m_tracks.addTrack(QString::fromStdString(track), position);
+                m_tracks.addTrack(QString::fromStdString(track), position, relay);
             }
         }
         else {
@@ -178,10 +180,10 @@ void TurntableController::getConfig()
     m_app->network()->sendMessage(output.str());
 }
 
-void TurntableController::addServiceTrack(const QString &name, int pos)
+void TurntableController::addServiceTrack(const QString &name, int pos, bool relayDir)
 {
     std::ostringstream output;
-    output << query::addTrack << " \"" << name.toStdString() << "\" " << pos << '\n';
+    output << query::addTrack << " \"" << name.toStdString() << "\" " << pos << " " << (int)relayDir << '\n';
     m_app->network()->sendMessage(output.str());
 }
 

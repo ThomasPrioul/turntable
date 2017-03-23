@@ -23,7 +23,7 @@ signals:
     void listChanged();
 
 public slots:
-    void addTrack(const QString& name, int pos)
+    void addTrack(const QString& name, int pos, bool relay)
     {
         Track* existingItem = nullptr;
 
@@ -40,7 +40,7 @@ public slots:
 
         if (existingItem == nullptr) {
             if (m_tracks.length() == 0)
-                m_tracks.append(new Track(name, pos));
+                m_tracks.append(new Track(name, pos, relay));
             else {
                 int i = 0;
                 for (; i < m_tracks.length(); i++) {
@@ -48,7 +48,7 @@ public slots:
                         break;
                     }
                 }
-                m_tracks.insert(i, new Track(name, pos));
+                m_tracks.insert(i, new Track(name, pos, relay));
             }
 
             emit listChanged();
