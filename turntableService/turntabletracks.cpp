@@ -46,7 +46,7 @@ bool TurntableTracks::loadFile()
 
             if (std::getline(lineParser, track, ';') && lineParser >> position && lineParser.ignore(10, ';') && lineParser >> polarity) {
                 tracks.insert({track, { position, polarity }});
-                std::cout << "Track: " << track << ", pos: " << position << std::endl;
+                std::cout << "Track: " << track << ", pos: " << position << " ; relay: " << polarity << std::endl;
             }
             else {
                 std::cerr << "Could not read trackname and position in line: " << line << '.' << std::endl;

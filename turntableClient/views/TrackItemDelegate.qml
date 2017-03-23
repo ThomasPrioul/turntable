@@ -12,6 +12,13 @@ Item {
         spacing: 10
         anchors.fill: parent
 
+        Button{
+            id: nameButton
+            text: name
+            //scale: 0.5
+            onClicked: app.turntable.moveToTrack(model.modelData)
+        }
+/*
         Label {
             id: nameLabel
             text: name;
@@ -19,7 +26,7 @@ Item {
             horizontalAlignment: Text.AlignLeft
             Layout.fillWidth: true
         }
-
+*/
         Label {
             id: positionLabel
             text: position;
@@ -27,6 +34,13 @@ Item {
             horizontalAlignment: Text.AlignRight
             Layout.fillWidth: true
         }
+        /*CheckBox{
+            id: relayLabel
+            //checkState: relay;
+            Layout.fillWidth: true
+        }*/
+
+
 
         ToolButton {
             contentItem: Image {
@@ -67,10 +81,10 @@ Item {
             name: "OnTrackState"
             when: (app.turntable.position === position)
 
-            PropertyChanges {
-                target: nameLabel
-                color: "#0F0FFF"
-            }
+//            PropertyChanges {
+//                target: nameLabel
+//                color: "#0F0FFF"
+//            }
 
             PropertyChanges {
                 target: positionLabel

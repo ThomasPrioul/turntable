@@ -53,7 +53,7 @@ public slots:
     void moveToTrack(Track* track);
     void stop();
     void getConfig();
-    void addServiceTrack(const QString& name, int pos);
+    void addServiceTrack(const QString& name, int pos, bool relayDir);
     void removeServiceTrack(const QString& name);
 
 private:

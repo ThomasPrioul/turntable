@@ -285,7 +285,7 @@ Item {
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         ColumnLayout {
-            anchors.fill: parent
+
             Label {
                 text: qsTr("Create/edit a track")
                 font.pointSize: 12
@@ -314,13 +314,29 @@ Item {
                 }
             }
 
+            RowLayout{
+                Layout.fillWidth: true
+                Label {
+                    text: qsTr("Relay polarization of the way")
+                    font.pointSize: 8
+                    font.bold: false
+                    Layout.fillWidth: true
+                }
+
+                CheckBox {
+                    id: relayDirectionCheckBox
+                }
+
+            }
+
+
             Button {
                 id: newTrackValidateButton
                 text: qsTr("OK")
                 Layout.alignment: Qt.AlignRight
                 enabled: newTrackNameField.acceptableInput && newTrackPositionField.acceptableInput
                 onClicked: {
-                    app.turntable.addServiceTrack(newTrackNameField.text, newTrackPositionField.text);
+                    app.turntable.addServiceTrack(newTrackNameField.text, newTrackPositionField.text, relayDirectionCheckBox.checked);
                     addTrackPopup.close();
                 }
             }

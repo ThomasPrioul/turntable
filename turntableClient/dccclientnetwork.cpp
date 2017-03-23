@@ -17,6 +17,7 @@ DccClientNetwork::DccClientNetwork(QObject *parent)
 DccClientNetwork::~DccClientNetwork()
 {
     disconnectFromHost();
+    disconnect(&m_socket, &QTcpSocket::disconnected, this, &DccClientNetwork::socketDisconnected);
 }
 
 void DccClientNetwork::connectToHost(const QString &hostName, quint16 port)
