@@ -39,6 +39,9 @@ TurntableApplication::TurntableApplication(int &argc, char **argv[])
     // Give access of the application class instance to the QML environment.
     m_engine.rootContext()->setContextProperty("app", this);
     m_engine.load(QUrl(QString("qrc:/main.qml")));
+
+    // Connect automatically
+    m_network.connectToHost(m_settings.serverIP(), m_settings.serverPort());
 }
 
 void TurntableApplication::networkConnected(const QString &hostname, quint16 port)
