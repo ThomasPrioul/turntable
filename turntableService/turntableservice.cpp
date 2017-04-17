@@ -24,7 +24,7 @@ TurntableService::TurntableService(int& argc, char** argv[])
 {
     QCoreApplication::setApplicationName("turntableservice");
     QCoreApplication::setOrganizationName("Thomas Prioul - Polytech' Tours");
-    QCoreApplication::setApplicationVersion("0.1");
+    QCoreApplication::setApplicationVersion("0.2");
 
     catchUnixSignals({SIGQUIT, SIGINT, SIGTERM, SIGHUP});
 }
@@ -68,6 +68,7 @@ Polytech' Tours - 2017)");
         return AppInitResult::HelpRequested;
     }
 
+    std::cout << QCoreApplication::applicationName().toStdString() << " - " << QCoreApplication::applicationVersion().toStdString() << std::endl;
     if (parser.isSet(ipOption)) {
         const QString ipArg = parser.value(ipOption);
         if (!networkAddr.setAddress(ipArg)) {

@@ -51,7 +51,7 @@ bool ClientSettings::load()
             std::string ip;
             uint16_t port;
 
-            if (std::getline(lineParser, ip, ';') && lineParser >> port) {
+            if (std::getline(lineParser, ip, ':') && lineParser >> port) {
                 m_serverIP = ip;
                 m_serverPort = port;
                 emit serverIPChanged();
@@ -78,7 +78,7 @@ bool ClientSettings::save()
     std::ofstream outputFile;
     outputFile.open (configFilePath, std::ios::trunc);
     if (outputFile.is_open()) {
-        outputFile << m_serverIP << ";" << m_serverPort << std::endl;
+        outputFile << m_serverIP << ":" << m_serverPort << std::endl;
         outputFile.close();
 
         return true;

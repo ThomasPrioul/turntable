@@ -5,8 +5,9 @@ import QtQuick.Controls.Material 2.0
 import QtQuick.Controls.Universal 2.0
 
 Item {
-    width: parent.width;
-
+    id: root
+    //width: parent.width;
+    signal editClicked(string name, int position, bool relay);
     RowLayout {
         id: itemLayout
         spacing: 10
@@ -63,8 +64,8 @@ Item {
 
                 MenuItem {
                     text: qsTr("Edit")
-                    enabled: !app.turntable.busy && false
-                    //onTriggered: app.tracksData.moveToTrack(model.modelData)
+                    enabled: !app.turntable.busy
+                    onTriggered: root.editClicked(name, position, relay);
                 }
 
                 MenuItem {

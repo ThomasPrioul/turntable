@@ -8,7 +8,7 @@ class Track : public QObject
     Q_OBJECT
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(int position READ position WRITE setPosition NOTIFY positionChanged)
-    Q_PROPERTY(bool relayrelay READ relay WRITE setRelay NOTIFY relayChanged)
+    Q_PROPERTY(bool relay READ relay WRITE setRelay NOTIFY relayChanged)
     Q_PROPERTY(bool edit READ edit WRITE setEdit NOTIFY editChanged)
 
 public:

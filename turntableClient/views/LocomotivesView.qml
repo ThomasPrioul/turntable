@@ -58,31 +58,6 @@ Item {
                         }
                     }
                 }
-
-//                            // Horizontal line
-//                            //                    Rectangle {
-//                            //                        height: 1
-//                            //                        Layout.fillWidth: true
-//                            //                        color: Material.foreground
-//                            //                        opacity: 0.5
-//                            //                    }
-
-//                            //                    Pane {
-//                            //                        topPadding: 3
-//                            //                        padding: 6
-//                            //                        Layout.fillWidth: true
-
-//                            //                        RowLayout {
-//                            //                            Button {
-//                            //                                text: qsTr("Left")
-//                            //                                onPressed: app.turntable.startIndefiniteMove(true)
-//                            //                                onReleased: app.turntable.stop()
-//                            //                            }
-//                            //                        }
-//                            //                    }
-//                        }
-//                    }
-//                }
             }
         }
         GridLayout {

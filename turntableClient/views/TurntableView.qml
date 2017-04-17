@@ -209,18 +209,30 @@ Item {
 
                         ListView {
                             id : tracksList
+                            clip: true
                             anchors.fill: parent
                             snapMode: ListView.SnapToItem
                             boundsBehavior: Flickable.StopAtBounds
-                            spacing: 50
+                            spacing: 10
                             model: app.turntable.tracksData.list
-                            delegate: TrackItemDelegate { }
+                            delegate: TrackItemDelegate {
+                                clip: true
+                                width: tracksList.width
+                                height: 50
+                                onEditClicked: {
+                                    newTrackNameField.text = name
+                                    newTrackPositionField.text = position
+                                    newTrackRelayCheckBox.checked = relay
+                                    addTrackPopup.open()
+                                }
+                            }
                         }
                     }
 
                     // Horizontal line
                     Rectangle {
                         height: 1
+                        anchors.topMargin: 10
                         Layout.fillWidth: true
                         color: Material.foreground
                         opacity: 0.5
@@ -298,7 +310,7 @@ Item {
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         ColumnLayout {
-
+            width: parent.width
             Label {
                 text: qsTr("Create/edit a track")
                 font.pointSize: 12
@@ -337,7 +349,7 @@ Item {
                 }
 
                 CheckBox {
-                    id: relayDirectionCheckBox
+                    id: newTrackRelayCheckBox
                 }
 
             }
@@ -349,7 +361,7 @@ Item {
                 Layout.alignment: Qt.AlignRight
                 enabled: newTrackNameField.acceptableInput && newTrackPositionField.acceptableInput
                 onClicked: {
-                    app.turntable.addServiceTrack(newTrackNameField.text, newTrackPositionField.text, relayDirectionCheckBox.checked);
+                    app.turntable.addServiceTrack(newTrackNameField.text, newTrackPositionField.text, newTrackRelayCheckBox.checked);
                     addTrackPopup.close();
                 }
             }

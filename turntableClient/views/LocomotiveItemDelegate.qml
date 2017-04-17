@@ -86,6 +86,7 @@ Pane {
             cellHeight: 40
             cellWidth: 45
             Layout.fillHeight: true
+            clip: true
 
             model: functionValues
             delegate: Button {
