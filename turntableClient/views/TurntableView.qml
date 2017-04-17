@@ -80,9 +80,22 @@ Item {
                                     width: parent.height <= parent.width ? parent.height : parent.width
                                     source: "qrc:/images/track.png"
                                     fillMode: Image.PreserveAspectFit
+
                                     rotation: app.turntable.nbSteps === -1 ? 0 : app.turntable.position / app.turntable.nbSteps * -360.0 // Angle interpreted as clockwise so need reverse
 
                                     //Behavior on rotation { RotationAnimation { duration: 50; } }
+                                }
+                                Image {
+                                    id: trackImage
+                                    anchors.centerIn: parent
+                                    //width: parent.height <= parent.width ? parent.height : parent.width
+
+                                    source: "qrc:/images/TrackGreen.png"
+                                    //fillMode: Image.PreserveAspectFit
+
+                                    transform:
+                                        Translate {x: 150}
+                                        Rotation { origin.x: 150; origin.y: 50; angle: 45}
                                 }
                             }
 

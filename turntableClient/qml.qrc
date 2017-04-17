@@ -26,5 +26,7 @@
         <file>views/TrackItemDelegate.qml</file>
         <file>views/LocomotivesView.qml</file>
         <file>views/LocomotiveItemDelegate.qml</file>
+        <file>images/TrackGreen.png</file>
+        <file>images/TrackGrey.png</file>
     </qresource>
 </RCC>
