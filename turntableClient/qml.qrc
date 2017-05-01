@@ -28,5 +28,7 @@
         <file>views/LocomotiveItemDelegate.qml</file>
         <file>images/TrackGreen.png</file>
         <file>images/TrackGrey.png</file>
+        <file>views/TrackImageItem.qml</file>
+        <file>views/TurntableViewScript.js</file>
     </qresource>
 </RCC>
