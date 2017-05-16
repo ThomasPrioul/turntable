@@ -23,6 +23,7 @@ Image {
     transform: [
         Translate {
             x: parent.width/2 + trackImage.width/2
+            y: -2
         }
         , Rotation {
             origin.x: trackImage.width/2

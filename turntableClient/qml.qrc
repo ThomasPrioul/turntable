@@ -30,5 +30,6 @@
         <file>images/TrackGrey.png</file>
         <file>views/TrackImageItem.qml</file>
         <file>views/TurntableViewScript.js</file>
+        <file>views/TrackLabelItem.qml</file>
     </qresource>
 </RCC>

@@ -77,16 +77,30 @@ Item {
                                 Layout.fillHeight: true
                                 Layout.fillWidth: true
 
+                                //Turntable Image
                                 Image {
                                     id: turntableImage
                                     antialiasing: true
                                     anchors.centerIn: parent
-                                    width: Math.min(447, parent.height <= parent.width ? parent.height : parent.width)
+                                    width: Math.min(447, parent.height <= parent.width ? parent.height * 0.9 : parent.width * 0.9)
                                     source: "qrc:/images/track.png"
                                     fillMode: Image.PreserveAspectFit
                                     rotation: app.turntable.nbSteps === -1 ? 0 : app.turntable.position / app.turntable.nbSteps * -360.0 // Angle interpreted as clockwise so need reverse
                                 }
 
+                                //TurnTable circle
+                                Rectangle{
+                                    id: turntableCircle
+                                    anchors.centerIn: parent
+                                    width: turntableImage.width
+                                    height: width
+                                    color: "transparent"
+                                    border.color: "black"
+                                    border.width: 2
+                                    radius: width * 0.5
+                                }
+
+                                //Track Image
                                 Item {
                                     id: turntableTrackImagesContainer
                                     anchors.centerIn: parent
