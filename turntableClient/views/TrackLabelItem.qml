@@ -29,13 +29,12 @@ Rectangle{
 
     //    text:  "Voie Test" // trackText
     transform: [
-        /*Rotation {
+        Rotation {
+            angle : -1 * imgAngle
             origin.x: trackLabel.width/2
             origin.y: trackLabel.height/2
-            angle: 90
         }
-        , */
-        Translate {
+        , Translate {
             x: parent.width/2* 1.05
             y: -2
         }
@@ -44,6 +43,7 @@ Rectangle{
             origin.y: trackLabel.height/2
             angle: imgAngle
         }
+
     ]
 
 }
