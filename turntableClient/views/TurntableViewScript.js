@@ -12,6 +12,7 @@ function loadItems(container) {
     for (var j = 0; j < app.turntable.tracksData.list.length; j++) {
         var item = app.turntable.tracksData.list[j];
         var angle = item.position / app.turntable.nbSteps * -360.0;
+        var angleLabel = 0;
         var trackText = app.turntable.tracksData.list[j].name;
 
         var img = component.createObject(container, {
@@ -24,8 +25,17 @@ function loadItems(container) {
             console.log("Failed to create track img");
         }
 
+        if ((angle < -90.0)&&(angle > -270.0)){
+            angleLabel = 180.0;
+        }
+        else{
+            angleLabel = 0.0;
+        }
+
+
         var lab = componentLabel.createObject(container, {
             "imgAngle": angle,
+            "labelAngle": angleLabel,
             "trackText": trackText
         });
         if (lab === null) {

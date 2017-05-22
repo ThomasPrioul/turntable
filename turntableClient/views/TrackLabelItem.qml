@@ -4,6 +4,7 @@ Rectangle{
     id: trackLabel
 
     property double imgAngle: 0
+    property double labelAngle: 0
     property string trackText
 
 
@@ -30,11 +31,12 @@ Rectangle{
     //    text:  "Voie Test" // trackText
     transform: [
         Rotation {
-            angle : -1 * imgAngle
             origin.x: trackLabel.width/2
             origin.y: trackLabel.height/2
+            angle: labelAngle
         }
-        , Translate {
+        ,
+        Translate {
             x: parent.width/2* 1.05
             y: -2
         }
