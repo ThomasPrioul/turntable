@@ -18,6 +18,7 @@ Rectangle{
     }
     height: trackLabelText.paintedHeight
     width: trackLabelText.paintedWidth
+    //color: "transparent"
     color: "white"
 
     anchors.centerIn: parent
@@ -37,7 +38,7 @@ Rectangle{
         }
         ,
         Translate {
-            x: parent.width/2* 1.05
+            x: parent.width/2* 1.25
             y: -2
         }
         , Rotation {
