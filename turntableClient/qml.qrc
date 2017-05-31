@@ -32,5 +32,8 @@
         <file>views/TurntableViewScript.js</file>
         <file>views/TrackLabelItem.qml</file>
         <file>images/track1.png</file>
+        <file>images/VoieVe.png</file>
+        <file>images/VoieGr.png</file>
+        <file>images/PlaqueNg.png</file>
     </qresource>
 </RCC>

@@ -11,7 +11,8 @@ Image {
     antialiasing: true
     fillMode: Image.PreserveAspectFit
     height: parent.height / (170/55)
-    source: occupied ? "qrc:/images/TrackGreen.png" : "qrc:/images/TrackGrey.png"
+    source: occupied ? "qrc:/images/VoieVe.png" : "qrc:/images/VoieGr.png"
+    //    source: occupied ? "qrc:/images/TrackGreen.png" : "qrc:/images/TrackGrey.png"
 
     MouseArea {
         id : clickArea
@@ -23,7 +24,7 @@ Image {
     transform: [
         Translate {
             x: parent.width/2 + trackImage.width/2
-            y: -2
+            y: 0//-2
         }
         , Rotation {
             origin.x: trackImage.width/2

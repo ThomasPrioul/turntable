@@ -57,6 +57,7 @@ Item {
                                 padding: 6
                                 visible: app.turntable.busy
                             }
+
                         }
                     }
 
@@ -83,7 +84,8 @@ Item {
                                     antialiasing: true
                                     anchors.centerIn: parent
                                     width: Math.min(447, parent.height <= parent.width ? parent.height * 0.75 : parent.width * 0.75)
-                                    source: "qrc:/images/track1.png"
+                                    source: "qrc:/images/PlaqueNg.png"
+                                    //source: "qrc:/images/track1.png"
                                     fillMode: Image.PreserveAspectFit
                                     rotation: app.turntable.nbSteps === -1 ? 0 : app.turntable.position / app.turntable.nbSteps * -360.0 // Angle interpreted as clockwise so need reverse
                                 }
