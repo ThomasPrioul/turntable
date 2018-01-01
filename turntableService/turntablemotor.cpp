@@ -20,7 +20,7 @@ constexpr int notifyThreshold = 64;
 constexpr int accurateNotifyThreshold = notifyThreshold/8;
 constexpr int64_t wakeTime = 400;
 constexpr int64_t normalWaitTime = 4000;
-constexpr int64_t fastWaitTime = 1000;
+constexpr int64_t fastWaitTime = 2500;  //Initial Value 1000
 constexpr bool defaultDirection = true;
 
 #ifndef RPI_FIX
@@ -53,15 +53,15 @@ inline static bool getZeroSensorState()
 static int64_t fastComputeSmoothDelay(int32_t stepsDone, int32_t movementSteps, int64_t baseTime) {
     int64_t out = baseTime;
 
-    constexpr int32_t rampLength = 200;
+    constexpr int32_t rampLength = 400;
     constexpr int32_t minEnhancedMovementLength = 00;
     constexpr int32_t slowDownBaseTime = 20;
 
     if (movementSteps > minEnhancedMovementLength) {
-        if (stepsDone < rampLength) {
+        if ((stepsDone < rampLength)&&(stepsDone < (movementSteps/2))) {
             out += (rampLength - stepsDone) * slowDownBaseTime;
         }
-        else if (stepsDone >= (movementSteps - rampLength)) {
+        else if ((stepsDone >= (movementSteps - rampLength))&&((movementSteps - stepsDone) <= ( movementSteps/2 ))) {
             out += (stepsDone - movementSteps + rampLength + 1) * slowDownBaseTime;
         }
     }
