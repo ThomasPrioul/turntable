@@ -35,5 +35,6 @@
         <file>images/VoieVe.png</file>
         <file>images/VoieGr.png</file>
         <file>images/PlaqueNg.png</file>
+        <file>views/TurnoutsView.qml</file>
     </qresource>
 </RCC>

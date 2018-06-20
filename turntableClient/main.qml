@@ -45,6 +45,9 @@ ApplicationWindow {
                 TabButton {
                     text: qsTr("Locomotives")
                 }
+                TabButton {
+                    text: qsTr("Turnouts")
+                }
             }
 
             ToolButton {
@@ -105,6 +108,11 @@ ApplicationWindow {
 
         LocomotivesView {
             id: locomotivesView
+            enabled: app.connected
+        }
+
+        TurnoutsView {
+            id: turnoutsView
             enabled: app.connected
         }
     }
