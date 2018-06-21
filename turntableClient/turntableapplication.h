@@ -8,15 +8,18 @@
 #include "clientsettings.h"
 #include "controllers/turntablecontroller.h"
 #include "controllers/lococontroller.h"
+#include "controllers/turnoutscontroller.h"
 
 class TurntableApplication : public QGuiApplication
 {
     Q_OBJECT
     Q_PROPERTY(DccClientNetwork* network READ network NOTIFY networkChanged)
     Q_PROPERTY(TurntableController* turntable READ turntable NOTIFY turntableChanged)
-    Q_PROPERTY(LocoController* locomotives READ locomotives NOTIFY turntableChanged)
+    Q_PROPERTY(LocoController* locomotives READ locomotives NOTIFY locomotivesChanged)
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
     Q_PROPERTY(ClientSettings* settings READ settings)
+    Q_PROPERTY(TurnoutsController* turnouts READ turnouts NOTIFY turnoutsChanged)
+    
 
 public:
     explicit TurntableApplication(int& argc, char **argv[]);
@@ -26,12 +29,14 @@ public:
     TurntableController* turntable() { return &m_turntable; }
     LocoController* locomotives() { return &m_locomotives; }
     ClientSettings* settings() { return &m_settings; }
+    TurnoutsController* turnouts() { return &m_turnouts; }
 
 signals:
     void connectedChanged();
     void networkChanged();
     void turntableChanged();
     void locomotivesChanged();
+    void turnoutsChanged();
     void messageReceived(const std::string& msg);
     void messageReceivedQString(const QString& msg);
 
@@ -55,6 +60,7 @@ private:
     DccClientNetwork m_network;
     ClientSettings m_settings;
     TurntableController m_turntable;
+    TurnoutsController m_turnouts;
 
 };
 
