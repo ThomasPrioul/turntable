@@ -54,7 +54,8 @@ HEADERS += \
     models/locomotive.h \
     controllers/lococontroller.h \
     models/locomotivefunction.h \
-    models/turnouts.h
+    models/turnouts.h \
+    controllers/turnoutscontroller.h
 
 linux-rasp-pi2-g++ {
     target.files    = turntableservice
