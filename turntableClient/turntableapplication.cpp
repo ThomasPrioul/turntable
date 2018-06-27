@@ -15,6 +15,7 @@ TurntableApplication::TurntableApplication(int &argc, char **argv[])
     , m_network(this)
     , m_settings(this)
     , m_turntable(this, this)
+    , m_turnouts(this, this)
 
 {
     QCoreApplication::setApplicationName("Client plaque tournante");
@@ -33,6 +34,7 @@ TurntableApplication::TurntableApplication(int &argc, char **argv[])
     qmlRegisterType<LocomotiveFunction>("turntable.client.models", 1, 0, "LocomotiveFunction");
     qmlRegisterType<TurntableController>("turntable.client.controllers", 1, 0, "TurntableController");
     qmlRegisterType<LocoController>("turntable.client.controllers", 1, 0, "LocoController");
+    qmlRegisterType<TurnoutsController>("turntable.client.controllers", 1, 0, "TurnoutsController");
 
     m_settings.load();
 

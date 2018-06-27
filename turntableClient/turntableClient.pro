@@ -14,7 +14,8 @@ SOURCES += main.cpp \
     models/locomotive.cpp \
     controllers/lococontroller.cpp \
     models/locomotivefunction.cpp \
-    models/turnouts.cpp
+    models/turnouts.cpp \
+    controllers/turnoutscontroller.cpp
 
 RESOURCES += qml.qrc
 

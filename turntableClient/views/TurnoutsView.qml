@@ -46,7 +46,6 @@ Item {
                 y: 341
                 text: "Taille"
                 onClicked: {
-                    app.turnouts.Size()
                 }
             }
 
