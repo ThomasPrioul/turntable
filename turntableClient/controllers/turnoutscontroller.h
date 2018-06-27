@@ -15,6 +15,7 @@ public:
 
 public slots:
     void messageReceived(const std::string& msg);
+    void sizeScreen(int panH, int panW);
 };
 
 #endif // TURNOUTSCONTROLLER_H

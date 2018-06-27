@@ -46,6 +46,7 @@ Item {
                 y: 341
                 text: "Taille"
                 onClicked: {
+                    app.turnouts.sizeScreen(panelTurnouts.height, panelTurnouts.width);
                 }
             }
 
