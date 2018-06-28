@@ -25,7 +25,7 @@ Item {
             id: panelTurnouts
 
             Label{
-                text: "Label"
+                text: app.turnouts.sizeLabel
                 id: label
             }
 
