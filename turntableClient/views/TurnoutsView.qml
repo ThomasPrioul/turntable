@@ -9,6 +9,8 @@ import turntable.client.models 1.0
 Item {
     id: turnoutsViewRoot
     anchors.fill: parent
+    width: 800
+    height: 432
 
     GridLayout {
         anchors.fill: parent
@@ -23,6 +25,9 @@ Item {
             Material.elevation: 6
             padding: 0
             id: panelTurnouts
+            x: 0
+            width: 780
+            height: 412
 
             Label{
                 text: app.turnouts.sizeLabel
@@ -30,14 +35,16 @@ Item {
             }
 
             Button{
-                x: 520
-                y: 420
+                x: 679
+                y: 372
+                width: 101
+                height: 40
                 text: "Button"
             }
 
             Button {
-                x: 419
-                y: 380
+                x: 484
+                y: 226
                 text: "Button"
             }
 
@@ -46,7 +53,7 @@ Item {
                 y: 341
                 text: "Taille"
                 onClicked: {
-                    app.turnouts.sizeScreen(panelTurnouts.height, panelTurnouts.width);
+                    app.turnouts.sizeScreen(turnoutsViewRoot.height, turnoutsViewRoot.width);
                 }
             }
 
