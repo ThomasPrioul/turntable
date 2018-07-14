@@ -21,6 +21,7 @@ signals:
 public slots:
     void messageReceived(const std::string& msg);
     void sizeScreen(int panH, int panW);
+    void cmdTrackTrace(int adress);
 
 private:
     QString m_sizeLabel;

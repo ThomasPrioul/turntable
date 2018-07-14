@@ -26,8 +26,15 @@ Item {
             padding: 0
             id: panelTurnouts
             x: 0
-            width: 780
-            height: 412
+
+            Rectangle{
+                id: rectangle
+                x: 0
+                y: 0
+                width: 780
+                height: 412
+                color: "#006633"
+            }
 
             Label{
                 text: app.turnouts.sizeLabel
@@ -43,8 +50,8 @@ Item {
             }
 
             Button {
-                x: 484
-                y: 226
+                x: 463
+                y: 358
                 text: "Button"
             }
 
@@ -52,8 +59,332 @@ Item {
                 x: 319
                 y: 341
                 text: "Taille"
+                z: 1
                 onClicked: {
                     app.turnouts.sizeScreen(turnoutsViewRoot.height, turnoutsViewRoot.width);
+                }
+            }
+
+            Image {
+                id: image900
+                x: 30
+                y: 120
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(900);
+                    }
+                }
+
+                Text {
+                    id: text10
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("A")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            Image {
+                id: image916
+                x: 30
+                y: 150
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text11
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("Q")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            Image {
+                id: image925
+                x: 240
+                y: 90
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text12
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("Z")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            Image {
+                id: image902
+                x: 270
+                y: 60
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text13
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("C")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            Image {
+                id: image903
+                x: 300
+                y: 30
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text14
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("D")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            Image {
+                id: image904
+                x: 330
+                y: 0
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text15
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("E")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            Image {
+                id: image917
+                x: 420
+                y: 90
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text16
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("R")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            Image {
+                id: image913
+                x: 510
+                y: 60
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text17
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("N")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            Image {
+                id: image909
+                x: 540
+                y: 30
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text18
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("J")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            Image {
+                id: image908
+                x: 570
+                y: 0
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text19
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("I")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            Image {
+                id: image76
+                x: 330
+                y: 90
+                width: 30
+                height: 30
+                source: "../Icones/Pos0/0000.ico"
+            }
+
+            Image {
+                id: image918
+                x: 270
+                y: 120
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text20
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("S")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            Image {
+                id: image905
+                x: 420
+                y: 150
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text9
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("F")
+                    font.bold: true
+                    font.pixelSize: 15
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+
+            Image {
+                id: image922
+                x: 120
+                y: 150
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text8
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("W")
+                    font.bold: true
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    font.pixelSize: 15
+                }
+            }
+
+            Image {
+                id: image923
+                x: 300
+                y: 150
+                width: 30
+                height: 30
+                source: "../Icones/Pos1/8100.ico"
+
+                Text {
+                    id: text21
+                    x: 0
+                    y: 0
+                    width: 30
+                    height: 30
+                    text: qsTr("X")
+                    font.pixelSize: 15
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
                 }
             }
 
@@ -597,113 +928,6 @@ Item {
                 source: "../Icones/Pos0/0000.ico"
             }
 
-            Image {
-                id: image900
-                x: 30
-                y: 120
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-            }
-
-            Image {
-                id: image916
-                x: 30
-                y: 150
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-            }
-
-            Image {
-                id: image925
-                x: 240
-                y: 90
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-            }
-
-            Image {
-                id: image902
-                x: 270
-                y: 60
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-            }
-
-            Image {
-                id: image903
-                x: 300
-                y: 30
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-            }
-
-            Image {
-                id: image904
-                x: 330
-                y: 0
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-            }
-
-            Image {
-                id: image917
-                x: 420
-                y: 90
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-            }
-
-            Image {
-                id: image913
-                x: 510
-                y: 60
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-            }
-
-            Image {
-                id: image909
-                x: 540
-                y: 30
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-            }
-
-            Image {
-                id: image908
-                x: 570
-                y: 0
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-            }
-
-            Image {
-                id: image76
-                x: 330
-                y: 90
-                width: 30
-                height: 30
-                source: "../Icones/Pos0/0000.ico"
-            }
-
-            Image {
-                id: image918
-                x: 270
-                y: 120
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-            }
 
             Image {
                 id: image78
@@ -742,50 +966,6 @@ Item {
             }
 
             Image {
-                id: image905
-                x: 420
-                y: 150
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-
-                Text {
-                    id: text9
-                    x: 0
-                    y: 0
-                    width: 30
-                    height: 30
-                    text: qsTr("F")
-                    font.bold: true
-                    font.pixelSize: 15
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-            }
-
-            Image {
-                id: image922
-                x: 120
-                y: 150
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
-
-                Text {
-                    id: text8
-                    x: 0
-                    y: 0
-                    width: 30
-                    height: 30
-                    text: qsTr("W")
-                    font.bold: true
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
-                    font.pixelSize: 15
-                }
-            }
-
-            Image {
                 id: image85
                 x: 120
                 y: 180
@@ -801,15 +981,6 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos0/0001.ico"
-            }
-
-            Image {
-                id: image923
-                x: 300
-                y: 150
-                width: 30
-                height: 30
-                source: "../Icones/Pos1/8100.ico"
             }
 
             Image {
@@ -872,6 +1043,7 @@ Item {
                 y: 150
                 width: 30
                 height: 30
+                color: "#ff6820"
                 text: "10"
                 font.bold: true
                 textFormat: Text.AutoText
@@ -887,6 +1059,7 @@ Item {
                 y: 90
                 width: 30
                 height: 30
+                color: "#ff6820"
                 text: "11"
                 font.bold: true
                 wrapMode: Text.NoWrap
@@ -901,6 +1074,7 @@ Item {
                 y: 60
                 width: 30
                 height: 30
+                color: "#ff6820"
                 text: "12"
                 font.bold: true
                 wrapMode: Text.NoWrap
@@ -915,6 +1089,7 @@ Item {
                 y: 30
                 width: 30
                 height: 30
+                color: "#ff6820"
                 text: "13"
                 font.bold: true
                 wrapMode: Text.NoWrap
@@ -929,6 +1104,7 @@ Item {
                 y: 0
                 width: 30
                 height: 30
+                color: "#ff6820"
                 text: "14"
                 font.bold: true
                 wrapMode: Text.NoWrap
@@ -943,6 +1119,7 @@ Item {
                 y: 180
                 width: 30
                 height: 30
+                color: "#ff6820"
                 text: "15"
                 font.bold: true
                 wrapMode: Text.NoWrap
@@ -957,12 +1134,102 @@ Item {
                 y: 90
                 width: 30
                 height: 30
+                color: "#ff6820"
                 text: "16"
                 font.bold: true
                 wrapMode: Text.NoWrap
                 font.pixelSize: 20
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+            }
+
+            Image {
+                id: image87
+                x: 90
+                y: 180
+                width: 30
+                height: 30
+                source: "../Icones/Pos0/0001.ico"
+            }
+
+            Text {
+                id: text22
+                x: 60
+                y: 210
+                width: 90
+                height: 30
+                color: "#ffffff"
+                text: "Sortie"
+                textFormat: Text.AutoText
+                wrapMode: Text.NoWrap
+                font.pixelSize: 12
+                verticalAlignment: Text.AlignVCenter
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            Text {
+                id: text23
+                x: 150
+                y: 210
+                width: 90
+                height: 30
+                color: "#ffffff"
+                text: "Entrée"
+                wrapMode: Text.NoWrap
+                textFormat: Text.AutoText
+                font.pixelSize: 12
+                verticalAlignment: Text.AlignVCenter
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            Text {
+                id: text24
+                x: 90
+                y: 240
+                width: 120
+                height: 30
+                color: "#ffffff"
+                text: "Rotonde"
+                wrapMode: Text.NoWrap
+                textFormat: Text.AutoText
+                font.pixelSize: 12
+                verticalAlignment: Text.AlignVCenter
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            Text {
+                id: text25
+                x: 690
+                y: 120
+                width: 90
+                height: 30
+                color: "#ffffff"
+                text: "Vers la gare"
+                wrapMode: Text.NoWrap
+                textFormat: Text.AutoText
+                font.pixelSize: 12
+                verticalAlignment: Text.AlignVCenter
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            Text {
+                id: text26
+                x: 390
+                y: 210
+                width: 210
+                height: 60
+                color: "#ffffff"
+                text: "Le dépot"
+                wrapMode: Text.NoWrap
+                textFormat: Text.AutoText
+                font.pixelSize: 40
+                verticalAlignment: Text.AlignVCenter
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
             }
         }
     }

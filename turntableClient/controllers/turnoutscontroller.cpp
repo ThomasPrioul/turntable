@@ -22,3 +22,8 @@ void TurnoutsController::sizeScreen(int panH, int panW)
     qDebug(m_sizeLabel.toLatin1());
     emit sizeLabelChanged();
 }
+
+void TurnoutsController::cmdTrackTrace(int adress)
+{
+    int toto = adress;
+}
