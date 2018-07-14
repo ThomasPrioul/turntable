@@ -100,6 +100,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(916);
+                    }
+                }
 
                 Text {
                     id: text11
@@ -122,6 +128,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(925);
+                    }
+                }
 
                 Text {
                     id: text12
@@ -144,6 +156,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(902);
+                    }
+                }
 
                 Text {
                     id: text13
@@ -166,6 +184,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(903);
+                    }
+                }
 
                 Text {
                     id: text14
@@ -188,6 +212,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(904);
+                    }
+                }
 
                 Text {
                     id: text15
@@ -210,6 +240,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(917);
+                    }
+                }
 
                 Text {
                     id: text16
@@ -232,6 +268,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(913);
+                    }
+                }
 
                 Text {
                     id: text17
@@ -254,6 +296,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(909);
+                    }
+                }
 
                 Text {
                     id: text18
@@ -276,6 +324,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(908);
+                    }
+                }
 
                 Text {
                     id: text19
@@ -292,21 +346,18 @@ Item {
             }
 
             Image {
-                id: image76
-                x: 330
-                y: 90
-                width: 30
-                height: 30
-                source: "../Icones/Pos0/0000.ico"
-            }
-
-            Image {
                 id: image918
                 x: 270
                 y: 120
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(918);
+                    }
+                }
 
                 Text {
                     id: text20
@@ -329,6 +380,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(905);
+                    }
+                }
 
                 Text {
                     id: text9
@@ -351,6 +408,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(922);
+                    }
+                }
 
                 Text {
                     id: text8
@@ -373,6 +436,12 @@ Item {
                 width: 30
                 height: 30
                 source: "../Icones/Pos1/8100.ico"
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        app.turnouts.cmdTrackTrace(923);
+                    }
+                }
 
                 Text {
                     id: text21
@@ -386,6 +455,15 @@ Item {
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
                 }
+            }
+
+            Image {
+                id: image76
+                x: 330
+                y: 90
+                width: 30
+                height: 30
+                source: "../Icones/Pos0/0000.ico"
             }
 
             Image {

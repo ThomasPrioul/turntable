@@ -25,5 +25,7 @@ void TurnoutsController::sizeScreen(int panH, int panW)
 
 void TurnoutsController::cmdTrackTrace(int adress)
 {
-    int toto = adress;
+    std::ostringstream str;
+    str << "BF " << adress << " 1\n";
+    m_app->network()->sendMessage(str.str());
 }
